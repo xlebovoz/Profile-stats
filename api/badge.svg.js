@@ -106,10 +106,9 @@ export default async function handler(req, res) {
               fill="white" text-anchor="middle" font-weight="bold">${followers}</text>
       </g>
       
-      <!-- Сделано хлебовозом слева снизу -->
-      <text x="20" y="${135 + usernameYOffset}" font-family="Arial, sans-serif" font-size="10" 
-            fill="#6e7681" text-anchor="start" font-weight="400">
-        Powered by Xlebovoz
+      <text x="430" y="${120 + usernameYOffset}" font-family="Arial, sans-serif" font-size="10" 
+            fill="#6e7681" text-anchor="end" font-weight="400">
+        ${dateStr}
       </text>
       
       <!-- Дата справа снизу -->
