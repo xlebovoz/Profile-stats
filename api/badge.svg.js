@@ -50,9 +50,10 @@ export default async function handler(req, res) {
     const now = new Date();
     const dateStr = now.toISOString().split('T')[0];
     
+    // Проверяем параметр show_username
     const showUsername = show_username.toLowerCase() === 'true';
     const usernameYOffset = showUsername ? 25 : 0;
-    const totalHeight = showUsername ? 160 : 150;
+    const totalHeight = showUsername ? 155 : 145; // Чуть увеличил: 155/145 вместо 150/140
     
     const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" width="450" height="${totalHeight}" viewBox="0 0 450 ${totalHeight}">
@@ -106,13 +107,13 @@ export default async function handler(req, res) {
       </g>
       
       <!-- Сделано хлебовозом слева снизу -->
-      <text x="20" y="${140 + usernameYOffset}" font-family="Arial, sans-serif" font-size="10" 
+      <text x="20" y="${135 + usernameYOffset}" font-family="Arial, sans-serif" font-size="10" 
             fill="#6e7681" text-anchor="start" font-weight="400">
         Powered by Xlebovoz
       </text>
       
       <!-- Дата справа снизу -->
-      <text x="430" y="${140 + usernameYOffset}" font-family="Arial, sans-serif" font-size="10" 
+      <text x="430" y="${135 + usernameYOffset}" font-family="Arial, sans-serif" font-size="10" 
             fill="#6e7681" text-anchor="end" font-weight="400">
         ${dateStr}
       </text>
@@ -125,7 +126,7 @@ export default async function handler(req, res) {
     
   } catch (error) {
     const errorSvg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="450" height="150" viewBox="0 0 450 150">
+    <svg xmlns="http://www.w3.org/2000/svg" width="450" height="145" viewBox="0 0 450 145">
       <defs>
         <linearGradient id="error-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stop-color="#f85149"/>
@@ -133,19 +134,19 @@ export default async function handler(req, res) {
         </linearGradient>
       </defs>
       
-      <rect width="450" height="150" fill="url(#error-gradient)" rx="20"/>
+      <rect width="450" height="145" fill="url(#error-gradient)" rx="20"/>
       
-      <text x="225" y="75" font-family="Arial, sans-serif" font-size="16" 
+      <text x="225" y="70" font-family="Arial, sans-serif" font-size="16" 
             fill="white" text-anchor="middle" font-weight="bold">
         ❌ ${error.message}
       </text>
       
-      <text x="20" y="140" font-family="Arial, sans-serif" font-size="10" 
+      <text x="20" y="130" font-family="Arial, sans-serif" font-size="10" 
             fill="rgba(255,255,255,0.7)" text-anchor="start" font-weight="400">
-        Powered by Xlebovoz
+        сделано хлебовозом
       </text>
       
-      <text x="430" y="140" font-family="Arial, sans-serif" font-size="10" 
+      <text x="430" y="130" font-family="Arial, sans-serif" font-size="10" 
             fill="rgba(255,255,255,0.7)" text-anchor="end" font-weight="400">
         ${new Date().toISOString().split('T')[0]}
       </text>
