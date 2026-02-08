@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
   res.setHeader('Content-Type', 'image/svg+xml');
-  const { username } = req.query;
+  const { username, show_username = 'false' } = req.query;
   
   if (!username) {
     return res.send(`
@@ -46,12 +46,15 @@ export default async function handler(req, res) {
     const stars = formatNumber(totalStars);
     const followers = formatNumber(user.followers);
     
-    // current date
     const now = new Date();
     const dateStr = now.toISOString().split('T')[0];
     
+    const showUsername = show_username.toLowerCase() === 'true';
+    const usernameYOffset = showUsername ? 20 : 0;
+    const totalHeight = showUsername ? 150 : 140;
+    
     const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="450" height="140" viewBox="0 0 450 140">
+    <svg xmlns="http://www.w3.org/2000/svg" width="450" height="${totalHeight}" viewBox="0 0 450 ${totalHeight}">
       <defs>
         <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stop-color="#0d1117"/>
@@ -61,10 +64,18 @@ export default async function handler(req, res) {
       </defs>
       
       <!-- Основной фон -->
-      <rect width="450" height="140" fill="url(#gradient)" rx="20"/>
+      <rect width="450" height="${totalHeight}" fill="url(#gradient)" rx="20"/>
+      
+      ${showUsername ? `
+      <!-- Имя пользователя сверху -->
+      <text x="225" y="30" font-family="Arial, sans-serif" font-size="16" 
+            fill="#f0f6fc" text-anchor="middle" font-weight="600">
+        ${user.name || username}
+      </text>
+      ` : ''}
       
       <!-- Левая часть: Репозитории -->
-      <g transform="translate(75, 65)">
+      <g transform="translate(75, ${65 + usernameYOffset})">
         <text x="0" y="-25" font-family="Arial, sans-serif" font-size="14" 
               fill="#8b949e" text-anchor="middle" font-weight="500">📦 Repos</text>
         <text x="0" y="25" font-family="Arial, sans-serif" font-size="42" 
@@ -72,10 +83,10 @@ export default async function handler(req, res) {
       </g>
       
       <!-- Разделитель 1 -->
-      <line x1="150" y1="45" x2="150" y2="105" stroke="#30363d" stroke-width="2"/>
+      <line x1="150" y1="${45 + usernameYOffset}" x2="150" y2="${105 + usernameYOffset}" stroke="#30363d" stroke-width="2"/>
       
       <!-- Центральная часть: Звёзды -->
-      <g transform="translate(225, 65)">
+      <g transform="translate(225, ${65 + usernameYOffset})">
         <text x="0" y="-25" font-family="Arial, sans-serif" font-size="14" 
               fill="#8b949e" text-anchor="middle" font-weight="500">⭐ Stars</text>
         <text x="0" y="25" font-family="Arial, sans-serif" font-size="42" 
@@ -83,10 +94,10 @@ export default async function handler(req, res) {
       </g>
       
       <!-- Разделитель 2 -->
-      <line x1="300" y1="45" x2="300" y2="105" stroke="#30363d" stroke-width="2"/>
+      <line x1="300" y1="${45 + usernameYOffset}" x2="300" y2="${105 + usernameYOffset}" stroke="#30363d" stroke-width="2"/>
       
       <!-- Правая часть: Подписчики -->
-      <g transform="translate(375, 65)">
+      <g transform="translate(375, ${65 + usernameYOffset})">
         <text x="0" y="-25" font-family="Arial, sans-serif" font-size="14" 
               fill="#8b949e" text-anchor="middle" font-weight="500">👥 Followers</text>
         <text x="0" y="25" font-family="Arial, sans-serif" font-size="42" 
@@ -94,13 +105,13 @@ export default async function handler(req, res) {
       </g>
       
       <!-- Сделано хлебовозом слева снизу -->
-      <text x="20" y="130" font-family="Arial, sans-serif" font-size="10" 
+      <text x="20" y="${130 + usernameYOffset}" font-family="Arial, sans-serif" font-size="10" 
             fill="#6e7681" text-anchor="start" font-weight="400">
         Powered by Xlebovoz
       </text>
       
       <!-- Дата справа снизу -->
-      <text x="430" y="130" font-family="Arial, sans-serif" font-size="10" 
+      <text x="430" y="${130 + usernameYOffset}" font-family="Arial, sans-serif" font-size="10" 
             fill="#6e7681" text-anchor="end" font-weight="400">
         ${dateStr}
       </text>
