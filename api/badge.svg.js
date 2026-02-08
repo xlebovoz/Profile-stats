@@ -77,7 +77,7 @@ export default async function handler(req, res) {
       ` : ''}
       
       <!-- Левая часть: Репозитории -->
-      <g transform="translate(75, ${55 + usernameYOffset})">
+      <g transform="translate(75, ${60 + usernameYOffset})">
         <text x="0" y="-25" font-family="Arial, sans-serif" font-size="14" 
               fill="#8b949e" text-anchor="middle" font-weight="500">📦 Repos</text>
         <text x="0" y="25" font-family="Arial, sans-serif" font-size="42" 
@@ -85,10 +85,10 @@ export default async function handler(req, res) {
       </g>
       
       <!-- Разделитель 1 -->
-      <line x1="150" y1="${35 + usernameYOffset}" x2="150" y2="${105 + usernameYOffset}" stroke="#30363d" stroke-width="2"/>
+      <line x1="150" y1="${40 + usernameYOffset}" x2="150" y2="${105 + usernameYOffset}" stroke="#30363d" stroke-width="2"/>
       
       <!-- Центральная часть: Звёзды -->
-      <g transform="translate(225, ${55 + usernameYOffset})">
+      <g transform="translate(225, ${60 + usernameYOffset})">
         <text x="0" y="-25" font-family="Arial, sans-serif" font-size="14" 
               fill="#8b949e" text-anchor="middle" font-weight="500">⭐ Stars</text>
         <text x="0" y="25" font-family="Arial, sans-serif" font-size="42" 
@@ -96,22 +96,22 @@ export default async function handler(req, res) {
       </g>
       
       <!-- Разделитель 2 -->
-      <line x1="300" y1="${35 + usernameYOffset}" x2="300" y2="${105 + usernameYOffset}" stroke="#30363d" stroke-width="2"/>
+      <line x1="300" y1="${40 + usernameYOffset}" x2="300" y2="${105 + usernameYOffset}" stroke="#30363d" stroke-width="2"/>
       
       <!-- Правая часть: Подписчики -->
-      <g transform="translate(375, ${55 + usernameYOffset})">
+      <g transform="translate(375, ${60 + usernameYOffset})">
         <text x="0" y="-25" font-family="Arial, sans-serif" font-size="14" 
               fill="#8b949e" text-anchor="middle" font-weight="500">👥 Followers</text>
         <text x="0" y="25" font-family="Arial, sans-serif" font-size="42" 
               fill="white" text-anchor="middle" font-weight="bold">${followers}</text>
       </g>
       
-      <text x="20" y="${125 + usernameYOffset}" font-family="Arial, sans-serif" font-size="10" 
+      <text x="20" y="${120 + usernameYOffset}" font-family="Arial, sans-serif" font-size="10" 
             fill="#6e7681" text-anchor="start" font-weight="400">
         Powered by Xlebovoz
       </text>
 
-      <text x="430" y="${125 + usernameYOffset}" font-family="Arial, sans-serif" font-size="10" 
+      <text x="430" y="${120 + usernameYOffset}" font-family="Arial, sans-serif" font-size="10" 
             fill="#6e7681" text-anchor="end" font-weight="400">
         ${dateStr}
       </text>
