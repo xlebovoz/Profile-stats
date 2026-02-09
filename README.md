@@ -31,5 +31,11 @@
 ```md
 ![GitHub Stats](https://profile-stats-xleb.vercel.app/api/badge.svg?username=YourUsername&show_username=true)
 ```
+### You can also add different themes to this badge via &theme=ThemeName.
 
 
+| Theme name | What it looks like |
+|-----------|-----------|
+| dark      | basic dark theme    |
+| light     | the usual light theme     |
+| github    | a theme with a gray tint     |
