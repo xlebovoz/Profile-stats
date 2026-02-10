@@ -26,12 +26,12 @@
 ```md
 ![GitHub Stats](https://profile-stats-xleb.vercel.app/api/badge.svg?username=YourUsername)
 ```
-### if you want to display your name from github at the top of the card, then add &show_username=true at the end of the link.
+### if you want to display your name from github at the top of the card, then add `&show_username=true` at the end of the link.
 
 ```md
 ![GitHub Stats](https://profile-stats-xleb.vercel.app/api/badge.svg?username=YourUsername&show_username=true)
 ```
-### You can also add different themes to this badge via &theme=ThemeName.
+### You can also add different themes to this badge via `&theme=ThemeName`.
 
 
 | Theme name | What it looks like        |
