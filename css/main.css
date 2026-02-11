@@ -1,0 +1,100 @@
+body {
+    font-family: Arial, sans-serif;
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    background: #f6f8fa;
+}
+
+.badge {
+    width: 420px;
+    height: 140px;
+    background: linear-gradient(135deg, #0d1117, #161b22, #0d1117);
+    border-radius: 20px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    margin: 20px 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    position: relative;
+    padding: 0 10px;
+}
+
+.stat {
+    text-align: center;
+    width: 110px;
+}
+
+.icon {
+    font-size: 13px;
+    color: #8b949e;
+    margin-bottom: 5px;
+}
+
+.number {
+    font-size: 38px;
+    font-weight: bold;
+    color: white;
+    line-height: 1;
+}
+
+.divider {
+    width: 1.5px;
+    height: 50px; 
+    background: #30363d;
+}
+
+.footer-left {
+    position: absolute;
+    bottom: 10px;
+    left: 15px;
+    font-size: 9px;
+    color: #6e7681;
+}
+
+.footer-right {
+    position: absolute;
+    bottom: 10px;
+    right: 15px;
+    font-size: 9px;
+    color: #6e7681;
+}
+
+input {
+    padding: 12px;
+    font-size: 16px;
+    width: 300px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    margin-right: 10px;
+}
+
+button {
+    padding: 12px 24px;
+    background: #238636;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.code-box {
+    background: #1e1e1e;
+    color: #d4d4d4;
+    padding: 15px;
+    border-radius: 6px;
+    margin-top: 20px;
+    font-family: 'Courier New', monospace;
+}
+
+.copy-btn {
+    background: #58a6ff;
+    margin-top: 10px;
+    padding: 10px 20px;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
