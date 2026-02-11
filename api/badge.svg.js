@@ -67,7 +67,7 @@ let borderWidth = 0;
 
   // Проверяем параметр border
   if (border !== undefined) {
-    borderWidth = 4; // Базовая толщина
+    borderWidth = 2; // Базовая толщина
     
     // Если border=цвет - используем указанный цвет
     const colorMap = {
