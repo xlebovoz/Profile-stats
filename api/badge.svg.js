@@ -61,7 +61,7 @@ export default async function handler(req, res) {
   
   const showBorder = border !== undefined;
   const borderColor = currentTheme.borderColor || currentTheme.text;
-  const borderWidth = showBorder ? 3 : 0;
+  const borderWidth = showBorder ? 2 : 0;
   
   if (!username) {
     return res.send(`
