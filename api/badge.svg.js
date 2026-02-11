@@ -127,8 +127,9 @@ export default async function handler(req, res) {
           <stop offset="100%" stop-color="${currentTheme.gradient[2]}"/>
         </linearGradient>
       </defs>
-      <rect width="450" height="${totalHeight}" fill="url(#gradient)" rx="20" 
-            stroke="${borderColor}" stroke-width="${borderWidth}"/>`;
+      <!-- Фон с обводкой -->
+      <rect x="2" y="2" width="446" height="${totalHeight - 4}" fill="url(#gradient)" rx="20" 
+            stroke="${borderColor}" stroke-width="${borderWidth * 2}" stroke-linejoin="round"/>`;
     } else if (currentTheme.type === 'image') {
       background = `
       <defs>
@@ -136,10 +137,10 @@ export default async function handler(req, res) {
           <image href="${currentTheme.image}" x="0" y="0" width="450" height="${totalHeight}" preserveAspectRatio="xMidYMid slice"/>
         </pattern>
       </defs>
-      <rect width="450" height="${totalHeight}" fill="url(#bg-image)" rx="20" 
-            stroke="${borderColor}" stroke-width="${borderWidth}"/>
-      <rect width="450" height="${totalHeight}" fill="rgba(0,0,0,0.4)" rx="20" 
-            stroke="none"/>`;
+      <!-- Фон с обводкой -->
+      <rect x="2" y="2" width="446" height="${totalHeight - 4}" fill="url(#bg-image)" rx="20" 
+            stroke="${borderColor}" stroke-width="${borderWidth * 2}" stroke-linejoin="round"/>
+      <rect x="2" y="2" width="446" height="${totalHeight - 4}" fill="rgba(0,0,0,0.4)" rx="20" stroke="none"/>`;
     }
     
     const svg = `
@@ -214,8 +215,8 @@ export default async function handler(req, res) {
         </linearGradient>
       </defs>
       
-      <rect width="450" height="145" fill="url(#error-gradient)" rx="20" 
-            stroke="${borderColor}" stroke-width="${showBorder ? 3 : 0}"/>
+      <rect x="2" y="2" width="446" height="141" fill="url(#error-gradient)" rx="20" 
+            stroke="${borderColor}" stroke-width="${showBorder ? 6 : 0}" stroke-linejoin="round"/>
       
       <text x="225" y="70" font-family="Arial, sans-serif" font-size="16" 
             fill="white" text-anchor="middle" font-weight="bold">
