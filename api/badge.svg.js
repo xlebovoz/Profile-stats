@@ -59,9 +59,42 @@ export default async function handler(req, res) {
 
   const currentTheme = themes[theme] || themes.dark;
   
-  const showBorder = border !== undefined;
-  const borderColor = currentTheme.borderColor || currentTheme.text;
-  const borderWidth = showBorder ? 2 : 0;
+  // Определяем цвет обводки
+  let borderColor = currentTheme.borderColor || currentTheme.text;
+  let borderWidth = 0;
+  
+  // Проверяем параметр border
+  if (border !== undefined) {
+    borderWidth = 2; // Базовая толщина
+    
+    // Если border=цвет - используем указанный цвет
+    const colorMap = {
+      'red': '#f85149',
+      'blue': '#58a6ff',
+      'green': '#2fbb4f',
+      'yellow': '#f1e05a',
+      'purple': '#a371f7',
+      'pink': '#f778ba',
+      'orange': '#ff7b72',
+      'white': '#ffffff',
+      'black': '#000000'
+    };
+    
+    if (border !== '' && border !== 'true' && border !== 'false') {
+      // Если это известный цвет из мапы
+      if (colorMap[border.toLowerCase()]) {
+        borderColor = colorMap[border.toLowerCase()];
+      } else {
+        // for hex code
+        const hexPattern = /^#?([0-9A-F]{3}|[0-9A-F]{6})$/i;
+        if (hexPattern.test(border)) {
+          borderColor = border.startsWith('#') ? border : `#${border}`;
+        } else {
+          borderColor = currentTheme.borderColor || currentTheme.text;
+        }
+      }
+    }
+  }
   
   if (!username) {
     return res.send(`
@@ -71,7 +104,8 @@ export default async function handler(req, res) {
         .title { font-size: 18px; font-weight: 600; fill: #24292f; }
         .desc { font-size: 14px; fill: #57606a; }
       </style>
-      <rect width="300" height="80" fill="#f6f8fa" rx="12" stroke="${borderColor}" stroke-width="${borderWidth}"/>
+      <rect x="2" y="2" width="296" height="76" fill="#f6f8fa" rx="12" 
+            stroke="${borderColor}" stroke-width="${borderWidth * 2}" stroke-linejoin="round"/>
       <text x="150" y="35" class="container title" text-anchor="middle">GitHub Badge API</text>
       <text x="150" y="55" class="container desc" text-anchor="middle">Add ?username=yourname to URL</text>
     </svg>
@@ -127,7 +161,6 @@ export default async function handler(req, res) {
           <stop offset="100%" stop-color="${currentTheme.gradient[2]}"/>
         </linearGradient>
       </defs>
-      <!-- Фон с обводкой -->
       <rect x="2" y="2" width="446" height="${totalHeight - 4}" fill="url(#gradient)" rx="20" 
             stroke="${borderColor}" stroke-width="${borderWidth * 2}" stroke-linejoin="round"/>`;
     } else if (currentTheme.type === 'image') {
@@ -137,7 +170,6 @@ export default async function handler(req, res) {
           <image href="${currentTheme.image}" x="0" y="0" width="450" height="${totalHeight}" preserveAspectRatio="xMidYMid slice"/>
         </pattern>
       </defs>
-      <!-- Фон с обводкой -->
       <rect x="2" y="2" width="446" height="${totalHeight - 4}" fill="url(#bg-image)" rx="20" 
             stroke="${borderColor}" stroke-width="${borderWidth * 2}" stroke-linejoin="round"/>
       <rect x="2" y="2" width="446" height="${totalHeight - 4}" fill="rgba(0,0,0,0.4)" rx="20" stroke="none"/>`;
@@ -216,7 +248,7 @@ export default async function handler(req, res) {
       </defs>
       
       <rect x="2" y="2" width="446" height="141" fill="url(#error-gradient)" rx="20" 
-            stroke="${borderColor}" stroke-width="${showBorder ? 6 : 0}" stroke-linejoin="round"/>
+            stroke="${borderColor}" stroke-width="${borderWidth * 2}" stroke-linejoin="round"/>
       
       <text x="225" y="70" font-family="Arial, sans-serif" font-size="16" 
             fill="white" text-anchor="middle" font-weight="bold">
