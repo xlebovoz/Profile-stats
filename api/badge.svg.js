@@ -59,13 +59,15 @@ export default async function handler(req, res) {
 
   const currentTheme = themes[theme] || themes.dark;
   
-  // Определяем цвет обводки
-  let borderColor = currentTheme.borderColor || currentTheme.text;
-  let borderWidth = 0;
-  
+// Замени блок с определением цвета обводки на этот:
+
+// Определяем цвет обводки
+let borderColor = currentTheme.borderColor || currentTheme.text;
+let borderWidth = 0;
+
   // Проверяем параметр border
   if (border !== undefined) {
-    borderWidth = 2; // Базовая толщина
+    borderWidth = 4; // Базовая толщина
     
     // Если border=цвет - используем указанный цвет
     const colorMap = {
@@ -80,16 +82,27 @@ export default async function handler(req, res) {
       'black': '#000000'
     };
     
+    // Проверяем, не является ли значение border цветом
     if (border !== '' && border !== 'true' && border !== 'false') {
-      // Если это известный цвет из мапы
-      if (colorMap[border.toLowerCase()]) {
-        borderColor = colorMap[border.toLowerCase()];
-      } else {
-        // for hex code
-        const hexPattern = /^#?([0-9A-F]{3}|[0-9A-F]{6})$/i;
-        if (hexPattern.test(border)) {
-          borderColor = border.startsWith('#') ? border : `#${border}`;
+      const borderLower = border.toLowerCase();
+      
+      // 1. Проверяем известные цвета по имени
+      if (colorMap[borderLower]) {
+        borderColor = colorMap[borderLower];
+      } 
+      // 2. Проверяем HEX-формат (3 или 6 символов, с # или без)
+      else {
+        // Убираем # если есть
+        let hex = border.startsWith('#') ? border.slice(1) : border;
+        
+        // Проверяем, что это валидный HEX (3 или 6 символов, только 0-9A-F)
+        const hexPattern = /^[0-9A-F]{6}$|^[0-9A-F]{3}$/i;
+        
+        if (hexPattern.test(hex)) {
+          // Добавляем # обратно
+          borderColor = `#${hex}`;
         } else {
+          // Если ничего не подошло - используем цвет темы
           borderColor = currentTheme.borderColor || currentTheme.text;
         }
       }
