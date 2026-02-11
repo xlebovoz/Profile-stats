@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
   res.setHeader('Content-Type', 'image/svg+xml');
-  const { username, show_username = 'false', theme = 'dark' } = req.query;
+  const { username, show_username = 'false', theme = 'dark', border } = req.query;
   
   // Определяем темы с градиентами И изображениями
   const themes = {
@@ -10,7 +10,8 @@ export default async function handler(req, res) {
       text: '#f0f6fc',
       muted: '#8b949e',
       divider: '#30363d',
-      footer: '#6e7681'
+      footer: '#6e7681',
+      borderColor: '#58a6ff'
     },
     light: {
       type: 'gradient',
@@ -18,7 +19,8 @@ export default async function handler(req, res) {
       text: '#24292f',
       muted: '#57606a',
       divider: '#d0d7de',
-      footer: '#8b949e'
+      footer: '#8b949e',
+      borderColor: '#0969da'
     },
     // space: {
     //   type: 'image',
@@ -50,11 +52,16 @@ export default async function handler(req, res) {
       text: '#ffffff',
       muted: '#959da5',
       divider: '#444d56',
-      footer: '#8b949e'
+      footer: '#8b949e',
+      borderColor: '#2fbb4f'
     }
   };
 
   const currentTheme = themes[theme] || themes.dark;
+  
+  const showBorder = border !== undefined;
+  const borderColor = currentTheme.borderColor || currentTheme.text;
+  const borderWidth = showBorder ? 3 : 0;
   
   if (!username) {
     return res.send(`
@@ -64,7 +71,7 @@ export default async function handler(req, res) {
         .title { font-size: 18px; font-weight: 600; fill: #24292f; }
         .desc { font-size: 14px; fill: #57606a; }
       </style>
-      <rect width="300" height="80" fill="#f6f8fa" rx="12"/>
+      <rect width="300" height="80" fill="#f6f8fa" rx="12" stroke="${borderColor}" stroke-width="${borderWidth}"/>
       <text x="150" y="35" class="container title" text-anchor="middle">GitHub Badge API</text>
       <text x="150" y="55" class="container desc" text-anchor="middle">Add ?username=yourname to URL</text>
     </svg>
@@ -120,7 +127,8 @@ export default async function handler(req, res) {
           <stop offset="100%" stop-color="${currentTheme.gradient[2]}"/>
         </linearGradient>
       </defs>
-      <rect width="450" height="${totalHeight}" fill="url(#gradient)" rx="20"/>`;
+      <rect width="450" height="${totalHeight}" fill="url(#gradient)" rx="20" 
+            stroke="${borderColor}" stroke-width="${borderWidth}"/>`;
     } else if (currentTheme.type === 'image') {
       background = `
       <defs>
@@ -128,9 +136,10 @@ export default async function handler(req, res) {
           <image href="${currentTheme.image}" x="0" y="0" width="450" height="${totalHeight}" preserveAspectRatio="xMidYMid slice"/>
         </pattern>
       </defs>
-      <!-- Затемнение фона для лучшей читаемости текста -->
-      <rect width="450" height="${totalHeight}" fill="url(#bg-image)" rx="20"/>
-      <rect width="450" height="${totalHeight}" fill="rgba(0,0,0,0.4)" rx="20"/>`;
+      <rect width="450" height="${totalHeight}" fill="url(#bg-image)" rx="20" 
+            stroke="${borderColor}" stroke-width="${borderWidth}"/>
+      <rect width="450" height="${totalHeight}" fill="rgba(0,0,0,0.4)" rx="20" 
+            stroke="none"/>`;
     }
     
     const svg = `
@@ -205,7 +214,8 @@ export default async function handler(req, res) {
         </linearGradient>
       </defs>
       
-      <rect width="450" height="145" fill="url(#error-gradient)" rx="20"/>
+      <rect width="450" height="145" fill="url(#error-gradient)" rx="20" 
+            stroke="${borderColor}" stroke-width="${showBorder ? 3 : 0}"/>
       
       <text x="225" y="70" font-family="Arial, sans-serif" font-size="16" 
             fill="white" text-anchor="middle" font-weight="bold">
