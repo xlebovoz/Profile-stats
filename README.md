@@ -45,3 +45,30 @@ An example of a badge with the added name and theme is github:
 ```md
 ![GitHub Stats](https://profile-stats-xleb.vercel.app/api/badge.svg?username=YourUsername&show_username=true&theme=github)
 ```
+
+### To make the badge look more attractive, you can add an outline of `&border`, and you can also choose the outline color by specifying `&border=ColorName(or hex code without #)`. You need to specify the hex color without # at the beginning of its name or an existing color from the table below:
+
+| Name (to copy) | HEX |
+|----------|-----|
+| `red` | `#f85149` |
+| `blue` | `#58a6ff` |
+| `green` | `#2fbb4f` |
+| `yellow` | `#f1e05a` |
+| `purple` | `#a371f7` |
+| `pink` | `#f778ba` |
+| `orange` | `#ff7b72` |
+| `white` | `#ffffff` |
+| `black` | `#000000` |
+
+An example with a color from the table:
+
+```md
+![GitHub Stats](https://profile-stats-xleb.vercel.app/api/badge.svg?username=YourUsername&show_username=true&theme=github&border=red)
+```
+
+An example with your hex color (for example #2ed1da):
+> ⚠️ **important**: You need to add a hex color without # at the beginning!
+
+```md
+![GitHub Stats](https://profile-stats-xleb.vercel.app/api/badge.svg?username=YourUsername&show_username=true&theme=github&border=2ed1da)
+```
