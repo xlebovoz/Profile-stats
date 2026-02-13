@@ -2,7 +2,7 @@ export default async function handler(req, res) {
   res.setHeader('Content-Type', 'image/svg+xml');
   const { username, show_username = 'false', theme = 'dark', border } = req.query;
   
-  // Определяем темы с градиентами И изображениями
+  // Определяем темы с градиентами
   const themes = {
     dark: {
       type: 'gradient',
@@ -22,30 +22,6 @@ export default async function handler(req, res) {
       footer: '#8b949e',
       borderColor: '#0969da'
     },
-    space: {
-      type: 'image',
-      image: 'https://img.freepik.com/free-photo/mythical-video-game-inspired-landscape-with-nature_23-2150974527.jpg?semt=ais_hybrid',
-      text: '#ffffff',
-      muted: '#cccccc',
-      divider: 'rgba(255,255,255,0.3)',
-      footer: 'rgba(255,255,255,0.7)'
-    },
-    // matrix: {
-    //   type: 'image',
-    //   image: 'https://images.unsplash.com/photo-1614732414444-096e5f1122d5?q=80&w=1374&auto=format&fit=crop',
-    //   text: '#00ff41',
-    //   muted: '#00cc33',
-    //   divider: '#009926',
-    //   footer: '#006619'
-    // },
-    // sunset: {
-    //   type: 'image',
-    //   image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=1470&auto=format&fit=crop',
-    //   text: '#ffffff',
-    //   muted: '#ffe6cc',
-    //   divider: 'rgba(255,255,255,0.3)',
-    //   footer: 'rgba(255,255,255,0.7)'
-    // },
     github: {
       type: 'gradient',
       gradient: ['#24292e', '#2f363d', '#24292e'],
@@ -57,19 +33,38 @@ export default async function handler(req, res) {
     }
   };
 
-  const currentTheme = themes[theme] || themes.dark;
+  // Определяем текущую тему
+  let currentTheme;
   
-// Замени блок с определением цвета обводки на этот:
-
-// Определяем цвет обводки
-let borderColor = currentTheme.borderColor || currentTheme.text;
-let borderWidth = 0;
+  // Проверяем, является ли theme путём к локальному файлу
+  if (theme && theme.includes('/')) {
+    // Это путь к файлу в проекте
+    const baseUrl = process.env.VERCEL_URL 
+      ? `https://${process.env.VERCEL_URL}` 
+      : 'http://localhost:3000';
+      
+    currentTheme = {
+      type: 'image',
+      image: `${baseUrl}${theme.startsWith('/') ? theme : '/' + theme}`,
+      text: '#ffffff',
+      muted: '#cccccc',
+      divider: 'rgba(255,255,255,0.3)',
+      footer: 'rgba(255,255,255,0.7)',
+      borderColor: '#ffffff'
+    };
+  } else {
+    // Используем предустановленную тему
+    currentTheme = themes[theme] || themes.dark;
+  }
+  
+  // Определяем цвет обводки (без изменений)
+  let borderColor = currentTheme.borderColor || currentTheme.text;
+  let borderWidth = 0;
 
   // Проверяем параметр border
   if (border !== undefined) {
-    borderWidth = 2; // Базовая толщина
+    borderWidth = 2;
     
-    // Если border=цвет - используем указанный цвет
     const colorMap = {
       'red': '#f85149',
       'blue': '#58a6ff',
@@ -82,27 +77,18 @@ let borderWidth = 0;
       'black': '#000000'
     };
     
-    // Проверяем, не является ли значение border цветом
     if (border !== '' && border !== 'true' && border !== 'false') {
       const borderLower = border.toLowerCase();
       
-      // 1. Проверяем известные цвета по имени
       if (colorMap[borderLower]) {
         borderColor = colorMap[borderLower];
-      } 
-      // 2. Проверяем HEX-формат (3 или 6 символов, с # или без)
-      else {
-        // Убираем # если есть
+      } else {
         let hex = border.startsWith('#') ? border.slice(1) : border;
-        
-        // Проверяем, что это валидный HEX (3 или 6 символов, только 0-9A-F)
         const hexPattern = /^[0-9A-F]{6}$|^[0-9A-F]{3}$/i;
         
         if (hexPattern.test(hex)) {
-          // Добавляем # обратно
           borderColor = `#${hex}`;
         } else {
-          // Если ничего не подошло - используем цвет темы
           borderColor = currentTheme.borderColor || currentTheme.text;
         }
       }
