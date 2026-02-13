@@ -211,7 +211,7 @@ export default async function handler(req, res) {
       background = `
       <defs>
         <pattern id="bg-image" patternUnits="userSpaceOnUse" width="450" height="${totalHeight}">
-          <image href="${currentTheme.image}" x="0" y="0" width="450" height="${totalHeight}" preserveAspectRatio="xMidYMid slice"/>
+          <image href="${currentTheme.image.replace(/&/g, '&amp;')}" x="0" y="0" width="450" height="${totalHeight}" preserveAspectRatio="xMidYMid slice"/>
         </pattern>
       </defs>
       <rect x="2" y="2" width="446" height="${totalHeight - 4}" fill="url(#bg-image)" rx="20" 
