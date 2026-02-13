@@ -42,10 +42,17 @@ export default async function handler(req, res) {
     const baseUrl = process.env.VERCEL_URL 
       ? `https://${process.env.VERCEL_URL}` 
       : 'http://localhost:3000';
-      
+    
+    // Добавляем параметры для сжатия фото
+    const imagePath = theme.startsWith('/') ? theme : '/' + theme;
+    
+    // Используем Vercel Image Optimization
+    // Параметры: w=450 (ширина), h=140 (высота), q=80 (качество), fit=cover (обрезка)
+    const optimizedImage = `${baseUrl}/_vercel/image?url=${encodeURIComponent(imagePath)}&w=450&h=140&q=80&fit=cover`;
+    
     currentTheme = {
       type: 'image',
-      image: `${baseUrl}${theme.startsWith('/') ? theme : '/' + theme}`,
+      image: optimizedImage,
       text: '#ffffff',
       muted: '#cccccc',
       divider: 'rgba(255,255,255,0.3)',
@@ -57,7 +64,7 @@ export default async function handler(req, res) {
     currentTheme = themes[theme] || themes.dark;
   }
   
-  // Определяем цвет обводки (без изменений)
+  // Определяем цвет обводки
   let borderColor = currentTheme.borderColor || currentTheme.text;
   let borderWidth = 0;
 
