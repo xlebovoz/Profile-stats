@@ -55,7 +55,7 @@ export default async function handler(req, res) {
         if (fs.existsSync(filePath)) {
           const compressedImage = await sharp(filePath)
             .resize(450, 140, { fit: 'cover', position: 'center' })
-            .jpeg({ quality: 70 })
+            .jpeg({ quality: 85 })
             .toBuffer();
           
           const base64Image = `data:image/jpeg;base64,${compressedImage.toString('base64')}`;
