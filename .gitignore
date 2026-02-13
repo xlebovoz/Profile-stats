@@ -1,0 +1,32 @@
+# Зависимости
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Локальные файлы
+.env
+.env.local
+.env.production
+.DS_Store
+Thumbs.db
+
+# Логи
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Vercel
+.vercel
+.vscode
+*.log
+
+# Тестовые файлы
+coverage/
+.nyc_output/
+
+# Временные файлы
+tmp/
+temp/
+*.tmp

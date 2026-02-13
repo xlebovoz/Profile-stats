@@ -1,8 +1,13 @@
+// api/badge.svg.js
+const sharp = require('sharp');
+const fs = require('fs');
+const path = require('path');
+
 export default async function handler(req, res) {
   res.setHeader('Content-Type', 'image/svg+xml');
   const { username, show_username = 'false', theme = 'dark', border } = req.query;
   
-  // Определяем темы с градиентами
+  // Определяем темы
   const themes = {
     dark: {
       type: 'gradient',
@@ -33,34 +38,67 @@ export default async function handler(req, res) {
     }
   };
 
-  // Определяем текущую тему
   let currentTheme;
   
   // Проверяем, является ли theme путём к локальному файлу
   if (theme && theme.includes('/')) {
-    // Это путь к файлу в проекте
-    const baseUrl = process.env.VERCEL_URL 
-      ? `https://${process.env.VERCEL_URL}` 
-      : 'http://localhost:3000';
-    
-    // Добавляем параметры для сжатия фото
-    const imagePath = theme.startsWith('/') ? theme : '/' + theme;
-    
-    // Используем Vercel Image Optimization
-    // Параметры: w=450 (ширина), h=140 (высота), q=80 (качество), fit=cover (обрезка)
-    const optimizedImage = `${baseUrl}/_vercel/image?url=${encodeURIComponent(imagePath)}&w=450&h=140&q=80&fit=cover`;
-    
-    currentTheme = {
-      type: 'image',
-      image: optimizedImage,
-      text: '#ffffff',
-      muted: '#cccccc',
-      divider: 'rgba(255,255,255,0.3)',
-      footer: 'rgba(255,255,255,0.7)',
-      borderColor: '#ffffff'
-    };
+    try {
+      const baseUrl = process.env.VERCEL_URL 
+        ? `https://${process.env.VERCEL_URL}` 
+        : 'http://localhost:3000';
+      
+      const imagePath = theme.startsWith('/') ? theme : '/' + theme;
+      
+      // Пытаемся сжать фото через sharp
+      try {
+        const filePath = path.join(process.cwd(), 'public', imagePath);
+        if (fs.existsSync(filePath)) {
+          const compressedImage = await sharp(filePath)
+            .resize(450, 140, { fit: 'cover', position: 'center' })
+            .jpeg({ quality: 70 })
+            .toBuffer();
+          
+          const base64Image = `data:image/jpeg;base64,${compressedImage.toString('base64')}`;
+          
+          currentTheme = {
+            type: 'image',
+            image: base64Image,
+            text: '#ffffff',
+            muted: '#cccccc',
+            divider: 'rgba(255,255,255,0.3)',
+            footer: 'rgba(255,255,255,0.7)',
+            borderColor: '#ffffff'
+          };
+        } else {
+          // Если файл не найден, используем прямую ссылку
+          currentTheme = {
+            type: 'image',
+            image: `${baseUrl}${imagePath}`,
+            text: '#ffffff',
+            muted: '#cccccc',
+            divider: 'rgba(255,255,255,0.3)',
+            footer: 'rgba(255,255,255,0.7)',
+            borderColor: '#ffffff'
+          };
+        }
+      } catch (compressError) {
+        console.error('Compression error:', compressError);
+        // Если сжатие не удалось, используем прямую ссылку
+        currentTheme = {
+          type: 'image',
+          image: `${baseUrl}${imagePath}`,
+          text: '#ffffff',
+          muted: '#cccccc',
+          divider: 'rgba(255,255,255,0.3)',
+          footer: 'rgba(255,255,255,0.7)',
+          borderColor: '#ffffff'
+        };
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      currentTheme = themes.dark;
+    }
   } else {
-    // Используем предустановленную тему
     currentTheme = themes[theme] || themes.dark;
   }
   
