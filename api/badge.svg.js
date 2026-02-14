@@ -53,12 +53,8 @@ export default async function handler(req, res) {
       try {
         const filePath = path.join(process.cwd(), 'public', imagePath);
         if (fs.existsSync(filePath)) {
-          const compressedImage = await sharp(filePath)
-            .resize(450, 140, { fit: 'cover', position: 'center' })
-            .jpeg({ quality: 85 })
-            .toBuffer();
-          
-          const base64Image = `data:image/jpeg;base64,${compressedImage.toString('base64')}`;
+          const originalImage = fs.readFileSync(filePath);
+          const base64Image = `data:image/${path.extname(filePath).slice(1)};base64,${originalImage.toString('base64')}`;
           
           currentTheme = {
             type: 'image',
