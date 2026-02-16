@@ -6,6 +6,7 @@ export default async function handler(req, res) {
   res.setHeader('Content-Type', 'image/svg+xml');
   const { username, show_username = 'false', theme = 'dark', border } = req.query;
   
+  // Определяем темы (только градиенты)
   const themes = {
     dark: {
       type: 'gradient',
@@ -33,95 +34,67 @@ export default async function handler(req, res) {
       divider: '#444d56',
       footer: '#8b949e',
       borderColor: '#2fbb4f'
-    },
-    
-    // Картинки (название = путь к файлу)
-    space: {
-      type: 'image',
-      image: '/images/space.jpg',
-      text: '#ffffff',
-      muted: '#cccccc',
-      divider: 'rgba(255,255,255,0.3)',
-      footer: 'rgba(255,255,255,0.7)',
-      borderColor: '#ffffff'
-    },
-    matrix: {
-      type: 'image',
-      image: '/images/matrix.jpg',
-      text: '#00ff41',
-      muted: '#00cc33',
-      divider: '#009926',
-      footer: '#006619',
-      borderColor: '#00ff41'
-    },
-    sunset: {
-      type: 'image',
-      image: '/images/sunset.jpg',
-      text: '#ffffff',
-      muted: '#ffe6cc',
-      divider: 'rgba(255,255,255,0.3)',
-      footer: 'rgba(255,255,255,0.7)',
-      borderColor: '#ff7b72'
-    },
-    ocean: {
-      type: 'image',
-      image: '/images/ocean.jpg',
-      text: '#ffffff',
-      muted: '#b3e0ff',
-      divider: 'rgba(255,255,255,0.3)',
-      footer: 'rgba(255,255,255,0.7)',
-      borderColor: '#00a8ff'
-    },
-    forest: {
-      type: 'image',
-      image: '/images/forest.jpg',
-      text: '#ffffff',
-      muted: '#c1e1c1',
-      divider: 'rgba(255,255,255,0.3)',
-      footer: 'rgba(255,255,255,0.7)',
-      borderColor: '#2ecc71'
-    },
-    neon: {
-      type: 'image',
-      image: '/images/neon.jpg',
-      text: '#ffffff',
-      muted: '#f0f0f0',
-      divider: 'rgba(255,255,255,0.3)',
-      footer: 'rgba(255,255,255,0.7)',
-      borderColor: '#ff00ff'
-    },
-    cyber: {
-      type: 'image',
-      image: '/images/cyber.jpg',
-      text: '#00ffff',
-      muted: '#00cccc',
-      divider: '#009999',
-      footer: '#006666',
-      borderColor: '#00ffff'
     }
   };
 
-  // Получаем тему
-  let currentTheme = themes[theme] || themes.dark;
+  let currentTheme;
   
-  // Если тема с картинкой, загружаем и конвертируем в base64
-  if (currentTheme.type === 'image') {
+  // Проверяем, является ли theme путём к локальному файлу
+  if (theme && theme.includes('/')) {
     try {
-      const filePath = path.join(process.cwd(), 'public', currentTheme.image);
-      if (fs.existsSync(filePath)) {
-        const originalImage = fs.readFileSync(filePath);
-        const ext = path.extname(filePath).slice(1);
-        const base64Image = `data:image/${ext};base64,${originalImage.toString('base64')}`;
-        currentTheme.image = base64Image;
-      } else {
-        // Если файл не найден, используем dark тему
-        console.error(`Image not found: ${filePath}`);
-        currentTheme = themes.dark;
+      const baseUrl = process.env.VERCEL_URL 
+        ? `https://${process.env.VERCEL_URL}` 
+        : 'http://localhost:3000';
+      
+      const imagePath = theme.startsWith('/') ? theme : '/' + theme;
+      
+      // Пытаемся загрузить фото
+      try {
+        const filePath = path.join(process.cwd(), 'public', imagePath);
+        if (fs.existsSync(filePath)) {
+          const originalImage = fs.readFileSync(filePath);
+          const base64Image = `data:image/${path.extname(filePath).slice(1)};base64,${originalImage.toString('base64')}`;
+          
+          currentTheme = {
+            type: 'image',
+            image: base64Image,
+            text: '#ffffff',
+            muted: '#cccccc',
+            divider: 'rgba(255,255,255,0.3)',
+            footer: 'rgba(255,255,255,0.7)',
+            borderColor: '#ffffff'
+          };
+        } else {
+          // Если файл не найден, используем прямую ссылку
+          currentTheme = {
+            type: 'image',
+            image: `${baseUrl}${imagePath}`,
+            text: '#ffffff',
+            muted: '#cccccc',
+            divider: 'rgba(255,255,255,0.3)',
+            footer: 'rgba(255,255,255,0.7)',
+            borderColor: '#ffffff'
+          };
+        }
+      } catch (error) {
+        console.error('Error reading file:', error);
+        // Если ошибка, используем прямую ссылку
+        currentTheme = {
+          type: 'image',
+          image: `${baseUrl}${imagePath}`,
+          text: '#ffffff',
+          muted: '#cccccc',
+          divider: 'rgba(255,255,255,0.3)',
+          footer: 'rgba(255,255,255,0.7)',
+          borderColor: '#ffffff'
+        };
       }
     } catch (error) {
-      console.error('Error loading image:', error);
+      console.error('Error:', error);
       currentTheme = themes.dark;
     }
+  } else {
+    currentTheme = themes[theme] || themes.dark;
   }
   
   // Определяем цвет обводки
@@ -230,10 +203,11 @@ export default async function handler(req, res) {
       <rect x="2" y="2" width="446" height="${totalHeight - 4}" fill="url(#gradient)" rx="20" 
             stroke="${borderColor}" stroke-width="${borderWidth * 2}" stroke-linejoin="round"/>`;
     } else if (currentTheme.type === 'image') {
+      const safeImageUrl = currentTheme.image.replace(/&/g, '&amp;');
       background = `
       <defs>
         <pattern id="bg-image" patternUnits="userSpaceOnUse" width="450" height="${totalHeight}">
-          <image href="${currentTheme.image.replace(/&/g, '&amp;')}" x="0" y="0" width="450" height="${totalHeight}" preserveAspectRatio="xMidYMid slice"/>
+          <image href="${safeImageUrl}" x="0" y="0" width="450" height="${totalHeight}" preserveAspectRatio="xMidYMid slice"/>
         </pattern>
       </defs>
       <rect x="2" y="2" width="446" height="${totalHeight - 4}" fill="url(#bg-image)" rx="20" 
