@@ -1,5 +1,4 @@
 // api/badge.svg.js
-const sharp = require('sharp');
 const fs = require('fs');
 const path = require('path');
 
@@ -7,7 +6,6 @@ export default async function handler(req, res) {
   res.setHeader('Content-Type', 'image/svg+xml');
   const { username, show_username = 'false', theme = 'dark', border } = req.query;
   
-  // Определяем темы
   const themes = {
     dark: {
       type: 'gradient',
@@ -35,67 +33,95 @@ export default async function handler(req, res) {
       divider: '#444d56',
       footer: '#8b949e',
       borderColor: '#2fbb4f'
+    },
+    
+    // Картинки (название = путь к файлу)
+    space: {
+      type: 'image',
+      image: '/images/space.jpg',
+      text: '#ffffff',
+      muted: '#cccccc',
+      divider: 'rgba(255,255,255,0.3)',
+      footer: 'rgba(255,255,255,0.7)',
+      borderColor: '#ffffff'
+    },
+    matrix: {
+      type: 'image',
+      image: '/images/matrix.jpg',
+      text: '#00ff41',
+      muted: '#00cc33',
+      divider: '#009926',
+      footer: '#006619',
+      borderColor: '#00ff41'
+    },
+    sunset: {
+      type: 'image',
+      image: '/images/sunset.jpg',
+      text: '#ffffff',
+      muted: '#ffe6cc',
+      divider: 'rgba(255,255,255,0.3)',
+      footer: 'rgba(255,255,255,0.7)',
+      borderColor: '#ff7b72'
+    },
+    ocean: {
+      type: 'image',
+      image: '/images/ocean.jpg',
+      text: '#ffffff',
+      muted: '#b3e0ff',
+      divider: 'rgba(255,255,255,0.3)',
+      footer: 'rgba(255,255,255,0.7)',
+      borderColor: '#00a8ff'
+    },
+    forest: {
+      type: 'image',
+      image: '/images/forest.jpg',
+      text: '#ffffff',
+      muted: '#c1e1c1',
+      divider: 'rgba(255,255,255,0.3)',
+      footer: 'rgba(255,255,255,0.7)',
+      borderColor: '#2ecc71'
+    },
+    neon: {
+      type: 'image',
+      image: '/images/neon.jpg',
+      text: '#ffffff',
+      muted: '#f0f0f0',
+      divider: 'rgba(255,255,255,0.3)',
+      footer: 'rgba(255,255,255,0.7)',
+      borderColor: '#ff00ff'
+    },
+    cyber: {
+      type: 'image',
+      image: '/images/cyber.jpg',
+      text: '#00ffff',
+      muted: '#00cccc',
+      divider: '#009999',
+      footer: '#006666',
+      borderColor: '#00ffff'
     }
   };
 
-  let currentTheme;
+  // Получаем тему
+  let currentTheme = themes[theme] || themes.dark;
   
-  // Проверяем, является ли theme путём к локальному файлу
-  if (theme && theme.includes('/')) {
+  // Если тема с картинкой, загружаем и конвертируем в base64
+  if (currentTheme.type === 'image') {
     try {
-      const baseUrl = process.env.VERCEL_URL 
-        ? `https://${process.env.VERCEL_URL}` 
-        : 'http://localhost:3000';
-      
-      const imagePath = theme.startsWith('/') ? theme : '/' + theme;
-      
-      // Пытаемся сжать фото через sharp
-      try {
-        const filePath = path.join(process.cwd(), 'public', imagePath);
-        if (fs.existsSync(filePath)) {
-          const originalImage = fs.readFileSync(filePath);
-          const base64Image = `data:image/${path.extname(filePath).slice(1)};base64,${originalImage.toString('base64')}`;
-          
-          currentTheme = {
-            type: 'image',
-            image: base64Image,
-            text: '#ffffff',
-            muted: '#cccccc',
-            divider: 'rgba(255,255,255,0.3)',
-            footer: 'rgba(255,255,255,0.7)',
-            borderColor: '#ffffff'
-          };
-        } else {
-          // Если файл не найден, используем прямую ссылку
-          currentTheme = {
-            type: 'image',
-            image: `${baseUrl}${imagePath}`,
-            text: '#ffffff',
-            muted: '#cccccc',
-            divider: 'rgba(255,255,255,0.3)',
-            footer: 'rgba(255,255,255,0.7)',
-            borderColor: '#ffffff'
-          };
-        }
-      } catch (compressError) {
-        console.error('Compression error:', compressError);
-        // Если сжатие не удалось, используем прямую ссылку
-        currentTheme = {
-          type: 'image',
-          image: `${baseUrl}${imagePath}`,
-          text: '#ffffff',
-          muted: '#cccccc',
-          divider: 'rgba(255,255,255,0.3)',
-          footer: 'rgba(255,255,255,0.7)',
-          borderColor: '#ffffff'
-        };
+      const filePath = path.join(process.cwd(), 'public', currentTheme.image);
+      if (fs.existsSync(filePath)) {
+        const originalImage = fs.readFileSync(filePath);
+        const ext = path.extname(filePath).slice(1);
+        const base64Image = `data:image/${ext};base64,${originalImage.toString('base64')}`;
+        currentTheme.image = base64Image;
+      } else {
+        // Если файл не найден, используем dark тему
+        console.error(`Image not found: ${filePath}`);
+        currentTheme = themes.dark;
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error loading image:', error);
       currentTheme = themes.dark;
     }
-  } else {
-    currentTheme = themes[theme] || themes.dark;
   }
   
   // Определяем цвет обводки
