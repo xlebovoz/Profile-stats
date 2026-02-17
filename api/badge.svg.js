@@ -36,70 +36,37 @@ export default async function handler(req, res) {
       footer: '#8b949e',
       borderColor: '#2fbb4f'
     },
-    // Темы с изображениями (просто добавляем названия)
-    coal: {
-      type: 'image',
-      image: '/coal.jpg'
-    },
-    land: {
-      type: 'image',
-      image: '/land.jpg'
-    },
-    matrix: {
-      type: 'image',
-      image: '/matrix.jpg'
-    },
-    ocean: {
-      type: 'image',
-      image: '/ocean.jpg'
-    },
-    purple: {
-      type: 'image',
-      image: '/purple.jpg'
-    },
-    space: {
-      type: 'image',
-      image: '/space_m.jpg'
-    },
-    storm: {
-      type: 'image',
-      image: '/storm.jpg'
-    },
-    sunset_r: {
-      type: 'image',
-      image: '/sunset_r.jpg'
-    },
-    sunset_y: {
-      type: 'image',
-      image: '/sunset_y.jpg'
-    },
-    trees: {
-      type: 'image',
-      image: '/trees.jpg'
-    }
+    // Темы с изображениями
+    coal: { type: 'image', file: 'coal.jpg' },
+    land: { type: 'image', file: 'land.jpg' },
+    matrix: { type: 'image', file: 'matrix.jpg' },
+    ocean: { type: 'image', file: 'ocean.jpg' },
+    purple: { type: 'image', file: 'purple.jpg' },
+    space: { type: 'image', file: 'space_m.jpg' },
+    storm: { type: 'image', file: 'storm.jpg' },
+    sunset_r: { type: 'image', file: 'sunset_r.jpg' },
+    sunset_y: { type: 'image', file: 'sunset_y.jpg' },
+    trees: { type: 'image', file: 'trees.jpg' }
   };
 
   let currentTheme;
   
   // Получаем тему
   const themeKey = theme.toLowerCase();
-  currentTheme = themes[themeKey] || themes.dark;
   
-  // Если это тема с изображением, загружаем его
-  if (currentTheme.type === 'image') {
+  // Проверяем, является ли theme путем к файлу
+  if (theme.includes('/')) {
     try {
       const baseUrl = process.env.VERCEL_URL 
         ? `https://${process.env.VERCEL_URL}` 
         : 'http://localhost:3000';
       
-      const imagePath = currentTheme.image;
+      const imagePath = theme.startsWith('/') ? theme : '/' + theme;
       const filePath = path.join(process.cwd(), 'public', imagePath);
       
-      // Пытаемся загрузить файл
       if (fs.existsSync(filePath)) {
         const originalImage = fs.readFileSync(filePath);
-        const ext = path.extname(filePath).slice(1);
-        const base64Image = `data:image/${ext};base64,${originalImage.toString('base64')}`;
+        const base64Image = `data:image/${path.extname(filePath).slice(1)};base64,${originalImage.toString('base64')}`;
         
         currentTheme = {
           type: 'image',
@@ -111,7 +78,6 @@ export default async function handler(req, res) {
           borderColor: '#ffffff'
         };
       } else {
-        // Если файл не найден, используем прямую ссылку
         currentTheme = {
           type: 'image',
           image: `${baseUrl}${imagePath}`,
@@ -123,9 +89,53 @@ export default async function handler(req, res) {
         };
       }
     } catch (error) {
-      console.error('Error loading image theme:', error);
+      console.error('Error:', error);
       currentTheme = themes.dark;
     }
+  } else if (themes[themeKey]) {
+    // Если это тема из списка
+    if (themes[themeKey].type === 'image') {
+      try {
+        const baseUrl = process.env.VERCEL_URL 
+          ? `https://${process.env.VERCEL_URL}` 
+          : 'http://localhost:3000';
+        
+        const imagePath = `/${themes[themeKey].file}`;
+        const filePath = path.join(process.cwd(), 'public', imagePath);
+        
+        if (fs.existsSync(filePath)) {
+          const originalImage = fs.readFileSync(filePath);
+          const base64Image = `data:image/${path.extname(filePath).slice(1)};base64,${originalImage.toString('base64')}`;
+          
+          currentTheme = {
+            type: 'image',
+            image: base64Image,
+            text: '#ffffff',
+            muted: '#cccccc',
+            divider: 'rgba(255,255,255,0.3)',
+            footer: 'rgba(255,255,255,0.7)',
+            borderColor: '#ffffff'
+          };
+        } else {
+          currentTheme = {
+            type: 'image',
+            image: `${baseUrl}${imagePath}`,
+            text: '#ffffff',
+            muted: '#cccccc',
+            divider: 'rgba(255,255,255,0.3)',
+            footer: 'rgba(255,255,255,0.7)',
+            borderColor: '#ffffff'
+          };
+        }
+      } catch (error) {
+        console.error('Error loading image theme:', error);
+        currentTheme = themes.dark;
+      }
+    } else {
+      currentTheme = themes[themeKey];
+    }
+  } else {
+    currentTheme = themes.dark;
   }
   
   // Определяем цвет обводки
@@ -242,8 +252,8 @@ export default async function handler(req, res) {
         </pattern>
       </defs>
       <rect x="2" y="2" width="446" height="${totalHeight - 4}" fill="url(#bg-image)" rx="20" 
-            stroke="${borderColor}" stroke-width="${borderWidth * 2}" stroke-linejoin="round"/>
-      <rect x="2" y="2" width="446" height="${totalHeight - 4}" fill="rgba(0,0,0,0.4)" rx="20" stroke="none"/>`;
+            stroke="${borderColor}" stroke-width="${borderWidth * 2}" stroke-linejoin="round"/>`;
+      // Убрал этот костыльный полупрозрачный слой: <rect x="2" y="2" width="446" height="${totalHeight - 4}" fill="rgba(0,0,0,0.4)" rx="20" stroke="none"/>
     }
     
     const svg = `
