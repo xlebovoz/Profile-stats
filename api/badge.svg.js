@@ -6,8 +6,23 @@ export default async function handler(req, res) {
   res.setHeader('Content-Type', 'image/svg+xml');
   const { username, show_username = 'false', theme = 'dark', border } = req.query;
   
-  // Определяем темы (только градиенты)
+  // Список доступных изображений для тем (из вашего файла)
+  const availableImages = [
+    'coal.jpg',
+    'land.jpg', 
+    'matrix.jpg',
+    'ocean.jpg',
+    'purple.jpg',
+    'space_m.jpg',
+    'storm.jpg',
+    'sunset_r.jpg',
+    'sunset_y.jpg',
+    'trees.jpg'
+  ];
+
+  // Определяем темы (градиенты + изображения по названиям)
   const themes = {
+    // Градиентные темы
     dark: {
       type: 'gradient',
       gradient: ['#0d1117', '#161b22', '#0d1117'],
@@ -34,13 +49,25 @@ export default async function handler(req, res) {
       divider: '#444d56',
       footer: '#8b949e',
       borderColor: '#2fbb4f'
-    }
+    },
+    // Темы на основе изображений (по названиям файлов без расширения)
+    coal: { type: 'image', file: 'coal.jpg' },
+    land: { type: 'image', file: 'land.jpg' },
+    matrix: { type: 'image', file: 'matrix.jpg' },
+    ocean: { type: 'image', file: 'ocean.jpg' },
+    purple: { type: 'image', file: 'purple.jpg' },
+    space: { type: 'image', file: 'space_m.jpg' }, // space_m.jpg -> space
+    storm: { type: 'image', file: 'storm.jpg' },
+    sunset_r: { type: 'image', file: 'sunset_r.jpg' },
+    sunset_y: { type: 'image', file: 'sunset_y.jpg' },
+    trees: { type: 'image', file: 'trees.jpg' }
   };
 
   let currentTheme;
   
-  // Проверяем, является ли theme путём к локальному файлу
+  // Проверяем, является ли theme названием темы из списка или путем к файлу
   if (theme && theme.includes('/')) {
+    // Если это путь к файлу (содержит слеш)
     try {
       const baseUrl = process.env.VERCEL_URL 
         ? `https://${process.env.VERCEL_URL}` 
@@ -94,7 +121,57 @@ export default async function handler(req, res) {
       currentTheme = themes.dark;
     }
   } else {
-    currentTheme = themes[theme] || themes.dark;
+    // Проверяем, есть ли такая тема в списке
+    const themeName = theme.toLowerCase();
+    
+    if (themes[themeName]) {
+      // Если это тема с изображением
+      if (themes[themeName].type === 'image') {
+        try {
+          const baseUrl = process.env.VERCEL_URL 
+            ? `https://${process.env.VERCEL_URL}` 
+            : 'http://localhost:3000';
+          
+          const imagePath = `/${themes[themeName].file}`;
+          const filePath = path.join(process.cwd(), 'public', imagePath);
+          
+          if (fs.existsSync(filePath)) {
+            const originalImage = fs.readFileSync(filePath);
+            const base64Image = `data:image/${path.extname(filePath).slice(1)};base64,${originalImage.toString('base64')}`;
+            
+            currentTheme = {
+              type: 'image',
+              image: base64Image,
+              text: '#ffffff',
+              muted: '#cccccc',
+              divider: 'rgba(255,255,255,0.3)',
+              footer: 'rgba(255,255,255,0.7)',
+              borderColor: '#ffffff'
+            };
+          } else {
+            // Если файл не найден, используем прямую ссылку
+            currentTheme = {
+              type: 'image',
+              image: `${baseUrl}${imagePath}`,
+              text: '#ffffff',
+              muted: '#cccccc',
+              divider: 'rgba(255,255,255,0.3)',
+              footer: 'rgba(255,255,255,0.7)',
+              borderColor: '#ffffff'
+            };
+          }
+        } catch (error) {
+          console.error('Error loading image theme:', error);
+          currentTheme = themes.dark;
+        }
+      } else {
+        // Если это градиентная тема
+        currentTheme = themes[themeName];
+      }
+    } else {
+      // Если тема не найдена, используем dark по умолчанию
+      currentTheme = themes.dark;
+    }
   }
   
   // Определяем цвет обводки
