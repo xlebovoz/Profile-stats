@@ -3,14 +3,14 @@ export default async function handler(req, res) {
   res.setHeader('Content-Type', 'image/svg+xml');
   const { username, show_username = 'false', theme = 'dark', border } = req.query;
 
-  // Базовый URL для изображений
+  // Базовый URL (без /public!)
   const baseUrl = process.env.VERCEL_URL 
     ? `https://${process.env.VERCEL_URL}` 
     : 'http://localhost:3000';
 
-  // Все темы в одном месте: градиенты и фото
+  // Все темы в одном месте
   const themes = {
-    // Градиенты
+    // Градиенты (как было)
     dark: {
       type: 'gradient',
       gradient: ['#0d1117', '#161b22', '#0d1117'],
@@ -38,11 +38,11 @@ export default async function handler(req, res) {
       footer: '#8b949e',
       borderColor: '#2fbb4f'
     },
-    
-    // Фото-темы (просто URL)
+
+    // Фото-темы (с правильными путями)
     coal: {
       type: 'image',
-      image: `public/image/coal.jpg`,  // <-- вот так, через /image/
+      image: `${baseUrl}/images/coal.jpg`,  // <-- без public!
       text: '#ffffff',
       muted: '#cccccc',
       divider: 'rgba(255,255,255,0.3)',
@@ -51,7 +51,7 @@ export default async function handler(req, res) {
     },
     land: {
       type: 'image',
-      image: `${baseUrl}/image/land.jpg`,
+      image: `${baseUrl}/images/land.jpg`,
       text: '#ffffff',
       muted: '#cccccc',
       divider: 'rgba(255,255,255,0.3)',
@@ -60,7 +60,7 @@ export default async function handler(req, res) {
     },
     matrix: {
       type: 'image',
-      image: `${baseUrl}/image/matrix.jpg`,
+      image: `${baseUrl}/images/matrix.jpg`,
       text: '#00ff00',
       muted: '#00aa00',
       divider: 'rgba(0,255,0,0.3)',
@@ -69,7 +69,7 @@ export default async function handler(req, res) {
     },
     ocean: {
       type: 'image',
-      image: `${baseUrl}/image/ocean.jpg`,
+      image: `${baseUrl}/images/ocean.jpg`,
       text: '#ffffff',
       muted: '#cccccc',
       divider: 'rgba(255,255,255,0.3)',
@@ -78,7 +78,7 @@ export default async function handler(req, res) {
     },
     purple: {
       type: 'image',
-      image: `${baseUrl}/image/purple.jpg`,
+      image: `${baseUrl}/images/purple.jpg`,
       text: '#ffffff',
       muted: '#e0b0ff',
       divider: 'rgba(255,255,255,0.3)',
@@ -87,7 +87,7 @@ export default async function handler(req, res) {
     },
     space: {
       type: 'image',
-      image: `${baseUrl}/image/space_m.jpg`,
+      image: `${baseUrl}/images/space_m.jpg`,
       text: '#ffffff',
       muted: '#aaaaff',
       divider: 'rgba(255,255,255,0.3)',
@@ -96,7 +96,7 @@ export default async function handler(req, res) {
     },
     storm: {
       type: 'image',
-      image: `${baseUrl}/image/storm.jpg`,
+      image: `${baseUrl}/images/storm.jpg`,
       text: '#ffffff',
       muted: '#bbccdd',
       divider: 'rgba(255,255,255,0.3)',
@@ -105,7 +105,7 @@ export default async function handler(req, res) {
     },
     sunset_r: {
       type: 'image',
-      image: `${baseUrl}/image/sunset_r.jpg`,
+      image: `${baseUrl}/images/sunset_r.jpg`,
       text: '#ffffff',
       muted: '#ffbbbb',
       divider: 'rgba(255,255,255,0.3)',
@@ -114,7 +114,7 @@ export default async function handler(req, res) {
     },
     sunset_y: {
       type: 'image',
-      image: `${baseUrl}/image/sunset_y.jpg`,
+      image: `${baseUrl}/images/sunset_y.jpg`,
       text: '#000000',
       muted: '#664d26',
       divider: 'rgba(0,0,0,0.2)',
@@ -123,7 +123,7 @@ export default async function handler(req, res) {
     },
     trees: {
       type: 'image',
-      image: `${baseUrl}/image/trees.jpg`,
+      image: `${baseUrl}/images/trees.jpg`,
       text: '#ffffff',
       muted: '#cccccc',
       divider: 'rgba(255,255,255,0.3)',
@@ -132,7 +132,7 @@ export default async function handler(req, res) {
     }
   };
 
-  // Берём тему по названию или dark по умолчанию
+  // Выбираем тему
   const currentTheme = themes[theme] || themes.dark;
   
   // Обработка border (как в твоём коде)
