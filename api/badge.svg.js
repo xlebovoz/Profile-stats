@@ -1,11 +1,13 @@
 // api/badge.svg.js
+const fs = require('fs');
+const path = require('path');
+
 export default async function handler(req, res) {
   res.setHeader('Content-Type', 'image/svg+xml');
   const { username, show_username = 'false', theme = 'dark', border } = req.query;
   
-  // Просто темы с путями к фото (которые лежат в public)
+  // Определяем темы (градиенты)
   const themes = {
-    // Градиентные темы
     dark: {
       type: 'gradient',
       gradient: ['#0d1117', '#161b22', '#0d1117'],
@@ -32,104 +34,321 @@ export default async function handler(req, res) {
       divider: '#444d56',
       footer: '#8b949e',
       borderColor: '#2fbb4f'
-    },
-    
-    // Фото темы (просто путь до хуйни)
-    coal: { type: 'image', path: '/coal.jpg' },
-    land: { type: 'image', path: '/land.jpg' },
-    matrix: { type: 'image', path: '/matrix.jpg' },
-    ocean: { type: 'image', path: '/ocean.jpg' },
-    purple: { type: 'image', path: '/purple.jpg' },
-    space: { type: 'image', path: '/space_m.jpg' },
-    storm: { type: 'image', path: '/storm.jpg' },
-    sunset_r: { type: 'image', path: '/sunset_r.jpg' },
-    sunset_y: { type: 'image', path: '/sunset_y.jpg' },
-    trees: { type: 'image', path: '/trees.jpg' }
+    }
   };
 
-  // Берем тему или dark по умолчанию
-  const currentTheme = themes[theme] || themes.dark;
+  // Добавляем темы с фото (просто пути к файлам)
+  const imageThemes = {
+    coal: '/coal.jpg',
+    land: '/land.jpg',
+    matrix: '/matrix.jpg',
+    ocean: '/ocean.jpg',
+    purple: '/purple.jpg',
+    space: '/space_m.jpg',
+    storm: '/storm.jpg',
+    sunset_r: '/sunset_r.jpg',
+    sunset_y: '/sunset_y.jpg',
+    trees: '/trees.jpg'
+  };
+
+  let currentTheme;
   
-  // Обводка
-  let borderColor = '#58a6ff';
+  // Проверяем тему
+  const themeLower = theme.toLowerCase();
+  
+  // Если это тема с фото
+  if (imageThemes[themeLower]) {
+    try {
+      const baseUrl = process.env.VERCEL_URL 
+        ? `https://${process.env.VERCEL_URL}` 
+        : 'http://localhost:3000';
+      
+      const imagePath = imageThemes[themeLower];
+      
+      // Пробуем загрузить фото
+      const filePath = path.join(process.cwd(), 'public', imagePath);
+      if (fs.existsSync(filePath)) {
+        const originalImage = fs.readFileSync(filePath);
+        const base64Image = `data:image/${path.extname(filePath).slice(1)};base64,${originalImage.toString('base64')}`;
+        
+        currentTheme = {
+          type: 'image',
+          image: base64Image,
+          text: '#ffffff',
+          muted: '#cccccc',
+          divider: 'rgba(255,255,255,0.3)',
+          footer: 'rgba(255,255,255,0.7)',
+          borderColor: '#ffffff'
+        };
+      } else {
+        // Если нет фото - ссылка
+        currentTheme = {
+          type: 'image',
+          image: `${baseUrl}${imagePath}`,
+          text: '#ffffff',
+          muted: '#cccccc',
+          divider: 'rgba(255,255,255,0.3)',
+          footer: 'rgba(255,255,255,0.7)',
+          borderColor: '#ffffff'
+        };
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      currentTheme = themes.dark;
+    }
+  } 
+  // Если это путь к файлу
+  else if (theme.includes('/')) {
+    try {
+      const baseUrl = process.env.VERCEL_URL 
+        ? `https://${process.env.VERCEL_URL}` 
+        : 'http://localhost:3000';
+      
+      const imagePath = theme.startsWith('/') ? theme : '/' + theme;
+      
+      const filePath = path.join(process.cwd(), 'public', imagePath);
+      if (fs.existsSync(filePath)) {
+        const originalImage = fs.readFileSync(filePath);
+        const base64Image = `data:image/${path.extname(filePath).slice(1)};base64,${originalImage.toString('base64')}`;
+        
+        currentTheme = {
+          type: 'image',
+          image: base64Image,
+          text: '#ffffff',
+          muted: '#cccccc',
+          divider: 'rgba(255,255,255,0.3)',
+          footer: 'rgba(255,255,255,0.7)',
+          borderColor: '#ffffff'
+        };
+      } else {
+        currentTheme = {
+          type: 'image',
+          image: `${baseUrl}${imagePath}`,
+          text: '#ffffff',
+          muted: '#cccccc',
+          divider: 'rgba(255,255,255,0.3)',
+          footer: 'rgba(255,255,255,0.7)',
+          borderColor: '#ffffff'
+        };
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      currentTheme = themes.dark;
+    }
+  } 
+  // Иначе обычная тема
+  else {
+    currentTheme = themes[themeLower] || themes.dark;
+  }
+  
+  // Определяем цвет обводки
+  let borderColor = currentTheme.borderColor || currentTheme.text;
   let borderWidth = 0;
-  if (border) {
+
+  if (border !== undefined) {
     borderWidth = 2;
-    borderColor = border.startsWith('#') ? border : `#${border}`;
+    
+    const colorMap = {
+      'red': '#f85149',
+      'blue': '#58a6ff',
+      'green': '#2fbb4f',
+      'yellow': '#f1e05a',
+      'purple': '#a371f7',
+      'pink': '#f778ba',
+      'orange': '#ff7b72',
+      'white': '#ffffff',
+      'black': '#000000'
+    };
+    
+    if (border !== '' && border !== 'true' && border !== 'false') {
+      const borderLower = border.toLowerCase();
+      
+      if (colorMap[borderLower]) {
+        borderColor = colorMap[borderLower];
+      } else {
+        let hex = border.startsWith('#') ? border.slice(1) : border;
+        const hexPattern = /^[0-9A-F]{6}$|^[0-9A-F]{3}$/i;
+        
+        if (hexPattern.test(hex)) {
+          borderColor = `#${hex}`;
+        } else {
+          borderColor = currentTheme.borderColor || currentTheme.text;
+        }
+      }
+    }
   }
   
   if (!username) {
-    return res.send(`<svg width="300" height="80"><rect width="300" height="80" fill="#f6f8fa" rx="12"/><text x="150" y="35" text-anchor="middle">хуй</text></svg>`);
+    return res.send(`
+    <svg xmlns="http://www.w3.org/2000/svg" width="300" height="80">
+      <style>
+        .container { font-family: 'Segoe UI', Arial, sans-serif; }
+        .title { font-size: 18px; font-weight: 600; fill: #24292f; }
+        .desc { font-size: 14px; fill: #57606a; }
+      </style>
+      <rect x="2" y="2" width="296" height="76" fill="#f6f8fa" rx="12" 
+            stroke="${borderColor}" stroke-width="${borderWidth * 2}" stroke-linejoin="round"/>
+      <text x="150" y="35" class="container title" text-anchor="middle">GitHub Badge API</text>
+      <text x="150" y="55" class="container desc" text-anchor="middle">Add ?username=yourname to URL</text>
+    </svg>
+    `);
   }
   
   try {
-    // Дергаем гитхаб
-    const userRes = await fetch(`https://api.github.com/users/${username}`);
-    if (!userRes.ok) throw new Error('нет такого');
-    const user = await userRes.json();
+    const response = await fetch(`https://api.github.com/users/${username}`);
     
-    // Звезды
-    const reposRes = await fetch(user.repos_url);
-    const repos = await reposRes.json();
-    const stars = repos.reduce((sum, repo) => sum + repo.stargazers_count, 0);
+    if (!response.ok) {
+      throw new Error(`User "${username}" not found`);
+    }
     
-    // Формат чисел
-    const format = (num) => num > 999 ? (num/1000).toFixed(1) + 'k' : num;
+    const user = await response.json();
     
-    const showName = show_username === 'true';
-    const height = showName ? 155 : 145;
+    // all stars
+    const reposResponse = await fetch(user.repos_url);
+    const reposData = await reposResponse.json();
+    const totalStars = reposData.reduce((sum, repo) => sum + repo.stargazers_count, 0);
     
-    // Базовый URL (где лежат фото)
-    const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000';
+    // formating nums (1000 -> 1k, 1000000 -> 1M)
+    function formatNumber(num) {
+      if (num >= 1000000) {
+        return (num / 1000000).toFixed(1) + 'M';
+      }
+      if (num >= 1000) {
+        return (num / 1000).toFixed(1) + 'k';
+      }
+      return num.toString();
+    }
     
-    // Творим SVG
+    const repos = formatNumber(user.public_repos);
+    const stars = formatNumber(totalStars);
+    const followers = formatNumber(user.followers);
+    
+    // current date
+    const now = new Date();
+    const dateStr = now.toISOString().split('T')[0];
+    
+    // Проверяем параметр show_username
+    const showUsername = show_username.toLowerCase() === 'true';
+    const usernameYOffset = showUsername ? 25 : 0;
+    const totalHeight = showUsername ? 155 : 145;
+    
+    // Генерируем фон в зависимости от типа темы
+    let background = '';
+    if (currentTheme.type === 'gradient') {
+      background = `
+      <defs>
+        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="${currentTheme.gradient[0]}"/>
+          <stop offset="50%" stop-color="${currentTheme.gradient[1]}"/>
+          <stop offset="100%" stop-color="${currentTheme.gradient[2]}"/>
+        </linearGradient>
+      </defs>
+      <rect x="2" y="2" width="446" height="${totalHeight - 4}" fill="url(#gradient)" rx="20" 
+            stroke="${borderColor}" stroke-width="${borderWidth * 2}" stroke-linejoin="round"/>`;
+    } else if (currentTheme.type === 'image') {
+      const safeImageUrl = currentTheme.image.replace(/&/g, '&amp;');
+      background = `
+      <defs>
+        <pattern id="bg-image" patternUnits="userSpaceOnUse" width="450" height="${totalHeight}">
+          <image href="${safeImageUrl}" x="0" y="0" width="450" height="${totalHeight}" preserveAspectRatio="xMidYMid slice"/>
+        </pattern>
+      </defs>
+      <rect x="2" y="2" width="446" height="${totalHeight - 4}" fill="url(#bg-image)" rx="20" 
+            stroke="${borderColor}" stroke-width="${borderWidth * 2}" stroke-linejoin="round"/>
+      <rect x="2" y="2" width="446" height="${totalHeight - 4}" fill="rgba(0,0,0,0.4)" rx="20" stroke="none"/>`;
+    }
+    
     const svg = `
-    <svg width="450" height="${height}" viewBox="0 0 450 ${height}" xmlns="http://www.w3.org/2000/svg">
-      ${currentTheme.type === 'gradient' ? `
-        <defs>
-          <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="${currentTheme.gradient[0]}"/>
-            <stop offset="50%" stop-color="${currentTheme.gradient[1]}"/>
-            <stop offset="100%" stop-color="${currentTheme.gradient[2]}"/>
-          </linearGradient>
-        </defs>
-        <rect width="450" height="${height}" fill="url(#bg)" rx="20"/>
-      ` : `
-        <rect width="450" height="${height}" fill="url(#bg-img)" rx="20"/>
-        <defs>
-          <pattern id="bg-img" patternUnits="userSpaceOnUse" width="450" height="${height}">
-            <image href="${baseUrl}${currentTheme.path}" width="450" height="${height}" preserveAspectRatio="xMidYMid cover"/>
-          </pattern>
-        </defs>
-        <rect width="450" height="${height}" fill="rgba(0,0,0,0.4)" rx="20"/>
-      `}
+    <svg xmlns="http://www.w3.org/2000/svg" width="450" height="${totalHeight}" viewBox="0 0 450 ${totalHeight}">
+      ${background}
       
-      ${showName ? `<text x="225" y="30" fill="white" text-anchor="middle" font-size="16" font-weight="bold">${user.name || username}</text>` : ''}
+      ${showUsername ? `
+      <!-- Имя пользователя сверху -->
+      <text x="225" y="30" font-family="Arial, sans-serif" font-size="16" 
+            fill="${currentTheme.text}" text-anchor="middle" font-weight="600">
+        ${user.name || username}
+      </text>
+      ` : ''}
       
-      <!-- Repos -->
-      <text x="75" y="${70 + (showName ? 25 : 0)}" fill="white" text-anchor="middle" font-size="14" opacity="0.8">📦 Repos</text>
-      <text x="75" y="${105 + (showName ? 25 : 0)}" fill="white" text-anchor="middle" font-size="42" font-weight="bold">${format(user.public_repos)}</text>
+      <!-- Левая часть: Репозитории -->
+      <g transform="translate(75, ${60 + usernameYOffset})">
+        <text x="0" y="-25" font-family="Arial, sans-serif" font-size="14" 
+              fill="${currentTheme.muted}" text-anchor="middle" font-weight="500">📦 Repos</text>
+        <text x="0" y="25" font-family="Arial, sans-serif" font-size="42" 
+              fill="${currentTheme.text}" text-anchor="middle" font-weight="bold">${repos}</text>
+      </g>
       
-      <!-- Stars -->
-      <text x="225" y="${70 + (showName ? 25 : 0)}" fill="white" text-anchor="middle" font-size="14" opacity="0.8">⭐ Stars</text>
-      <text x="225" y="${105 + (showName ? 25 : 0)}" fill="white" text-anchor="middle" font-size="42" font-weight="bold">${format(stars)}</text>
+      <!-- Разделитель 1 -->
+      <line x1="150" y1="${40 + usernameYOffset}" x2="150" y2="${105 + usernameYOffset}" 
+            stroke="${currentTheme.divider}" stroke-width="2"/>
       
-      <!-- Followers -->
-      <text x="375" y="${70 + (showName ? 25 : 0)}" fill="white" text-anchor="middle" font-size="14" opacity="0.8">👥 Followers</text>
-      <text x="375" y="${105 + (showName ? 25 : 0)}" fill="white" text-anchor="middle" font-size="42" font-weight="bold">${format(user.followers)}</text>
+      <!-- Центральная часть: Звёзды -->
+      <g transform="translate(225, ${60 + usernameYOffset})">
+        <text x="0" y="-25" font-family="Arial, sans-serif" font-size="14" 
+              fill="${currentTheme.muted}" text-anchor="middle" font-weight="500">⭐ Stars</text>
+        <text x="0" y="25" font-family="Arial, sans-serif" font-size="42" 
+              fill="${currentTheme.text}" text-anchor="middle" font-weight="bold">${stars}</text>
+      </g>
       
-      <!-- Подвал -->
-      <text x="20" y="${height - 15}" fill="rgba(255,255,255,0.5)" font-size="10">Powered by Xlebovoz</text>
-      <text x="430" y="${height - 15}" fill="rgba(255,255,255,0.5)" font-size="10" text-anchor="end">${new Date().toISOString().split('T')[0]}</text>
+      <!-- Разделитель 2 -->
+      <line x1="300" y1="${40 + usernameYOffset}" x2="300" y2="${105 + usernameYOffset}" 
+            stroke="${currentTheme.divider}" stroke-width="2"/>
       
-      ${borderWidth ? `<rect width="450" height="${height}" fill="none" stroke="${borderColor}" stroke-width="${borderWidth}" rx="20"/>` : ''}
+      <!-- Правая часть: Подписчики -->
+      <g transform="translate(375, ${60 + usernameYOffset})">
+        <text x="0" y="-25" font-family="Arial, sans-serif" font-size="14" 
+              fill="${currentTheme.muted}" text-anchor="middle" font-weight="500">👥 Followers</text>
+        <text x="0" y="25" font-family="Arial, sans-serif" font-size="42" 
+              fill="${currentTheme.text}" text-anchor="middle" font-weight="bold">${followers}</text>
+      </g>
+      
+      <!-- Сделано хлебовозом слева снизу -->
+      <text x="20" y="${120 + usernameYOffset}" font-family="Arial, sans-serif" font-size="10" 
+            fill="${currentTheme.footer}" text-anchor="start" font-weight="400">
+        Powered by Xlebovoz
+      </text>
+      
+      <!-- Дата справа снизу -->
+      <text x="430" y="${120 + usernameYOffset}" font-family="Arial, sans-serif" font-size="10" 
+            fill="${currentTheme.footer}" text-anchor="end" font-weight="400">
+        ${dateStr}
+      </text>
     </svg>
     `;
     
-    res.setHeader('Cache-Control', 'public, max-age=3600');
+    // кэширование на 6 часов
+    res.setHeader('Cache-Control', 'public, max-age=21600, s-maxage=21600');
     res.send(svg);
     
-  } catch (e) {
-    res.send(`<svg width="450" height="100"><rect width="450" height="100" fill="#f85149" rx="20"/><text x="225" y="55" fill="white" text-anchor="middle">❌ нихуя не работает</text></svg>`);
+  } catch (error) {
+    const errorSvg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="450" height="145" viewBox="0 0 450 145">
+      <defs>
+        <linearGradient id="error-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#f85149"/>
+          <stop offset="100%" stop-color="#da3633"/>
+        </linearGradient>
+      </defs>
+      
+      <rect x="2" y="2" width="446" height="141" fill="url(#error-gradient)" rx="20" 
+            stroke="${borderColor}" stroke-width="${borderWidth * 2}" stroke-linejoin="round"/>
+      
+      <text x="225" y="70" font-family="Arial, sans-serif" font-size="16" 
+            fill="white" text-anchor="middle" font-weight="bold">
+        ❌ ${error.message}
+      </text>
+      
+      <text x="20" y="130" font-family="Arial, sans-serif" font-size="10" 
+            fill="rgba(255,255,255,0.7)" text-anchor="start" font-weight="400">
+        Powered by Xlebovoz
+      </text>
+      
+      <text x="430" y="130" font-family="Arial, sans-serif" font-size="10" 
+            fill="rgba(255,255,255,0.7)" text-anchor="end" font-weight="400">
+        ${new Date().toISOString().split('T')[0]}
+      </text>
+    </svg>
+    `;
+    res.send(errorSvg);
   }
 }
