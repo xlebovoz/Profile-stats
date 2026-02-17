@@ -42,7 +42,7 @@ export default async function handler(req, res) {
     // Фото-темы (просто URL)
     coal: {
       type: 'image',
-      image: `${baseUrl}/image/coal.jpg`,  // <-- вот так, через /image/
+      image: `public/image/coal.jpg`,  // <-- вот так, через /image/
       text: '#ffffff',
       muted: '#cccccc',
       divider: 'rgba(255,255,255,0.3)',
