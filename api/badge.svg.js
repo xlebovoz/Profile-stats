@@ -6,21 +6,7 @@ export default async function handler(req, res) {
   res.setHeader('Content-Type', 'image/svg+xml');
   const { username, show_username = 'false', theme = 'dark', border } = req.query;
   
-  // Список доступных изображений для тем (из вашего файла)
-  const availableImages = [
-    'coal.jpg',
-    'land.jpg', 
-    'matrix.jpg',
-    'ocean.jpg',
-    'purple.jpg',
-    'space_m.jpg',
-    'storm.jpg',
-    'sunset_r.jpg',
-    'sunset_y.jpg',
-    'trees.jpg'
-  ];
-
-  // Определяем темы (градиенты + изображения по названиям)
+  // Определяем темы (градиенты + изображения)
   const themes = {
     // Градиентные темы
     dark: {
@@ -50,62 +36,82 @@ export default async function handler(req, res) {
       footer: '#8b949e',
       borderColor: '#2fbb4f'
     },
-    // Темы на основе изображений (по названиям файлов без расширения)
-    coal: { type: 'image', file: 'coal.jpg' },
-    land: { type: 'image', file: 'land.jpg' },
-    matrix: { type: 'image', file: 'matrix.jpg' },
-    ocean: { type: 'image', file: 'ocean.jpg' },
-    purple: { type: 'image', file: 'purple.jpg' },
-    space: { type: 'image', file: 'space_m.jpg' }, // space_m.jpg -> space
-    storm: { type: 'image', file: 'storm.jpg' },
-    sunset_r: { type: 'image', file: 'sunset_r.jpg' },
-    sunset_y: { type: 'image', file: 'sunset_y.jpg' },
-    trees: { type: 'image', file: 'trees.jpg' }
+    // Темы с изображениями (просто добавляем названия)
+    coal: {
+      type: 'image',
+      image: '/coal.jpg'
+    },
+    land: {
+      type: 'image',
+      image: '/land.jpg'
+    },
+    matrix: {
+      type: 'image',
+      image: '/matrix.jpg'
+    },
+    ocean: {
+      type: 'image',
+      image: '/ocean.jpg'
+    },
+    purple: {
+      type: 'image',
+      image: '/purple.jpg'
+    },
+    space: {
+      type: 'image',
+      image: '/space_m.jpg'
+    },
+    storm: {
+      type: 'image',
+      image: '/storm.jpg'
+    },
+    sunset_r: {
+      type: 'image',
+      image: '/sunset_r.jpg'
+    },
+    sunset_y: {
+      type: 'image',
+      image: '/sunset_y.jpg'
+    },
+    trees: {
+      type: 'image',
+      image: '/trees.jpg'
+    }
   };
 
   let currentTheme;
   
-  // Проверяем, является ли theme названием темы из списка или путем к файлу
-  if (theme && theme.includes('/')) {
-    // Если это путь к файлу (содержит слеш)
+  // Получаем тему
+  const themeKey = theme.toLowerCase();
+  currentTheme = themes[themeKey] || themes.dark;
+  
+  // Если это тема с изображением, загружаем его
+  if (currentTheme.type === 'image') {
     try {
       const baseUrl = process.env.VERCEL_URL 
         ? `https://${process.env.VERCEL_URL}` 
         : 'http://localhost:3000';
       
-      const imagePath = theme.startsWith('/') ? theme : '/' + theme;
+      const imagePath = currentTheme.image;
+      const filePath = path.join(process.cwd(), 'public', imagePath);
       
-      // Пытаемся загрузить фото
-      try {
-        const filePath = path.join(process.cwd(), 'public', imagePath);
-        if (fs.existsSync(filePath)) {
-          const originalImage = fs.readFileSync(filePath);
-          const base64Image = `data:image/${path.extname(filePath).slice(1)};base64,${originalImage.toString('base64')}`;
-          
-          currentTheme = {
-            type: 'image',
-            image: base64Image,
-            text: '#ffffff',
-            muted: '#cccccc',
-            divider: 'rgba(255,255,255,0.3)',
-            footer: 'rgba(255,255,255,0.7)',
-            borderColor: '#ffffff'
-          };
-        } else {
-          // Если файл не найден, используем прямую ссылку
-          currentTheme = {
-            type: 'image',
-            image: `${baseUrl}${imagePath}`,
-            text: '#ffffff',
-            muted: '#cccccc',
-            divider: 'rgba(255,255,255,0.3)',
-            footer: 'rgba(255,255,255,0.7)',
-            borderColor: '#ffffff'
-          };
-        }
-      } catch (error) {
-        console.error('Error reading file:', error);
-        // Если ошибка, используем прямую ссылку
+      // Пытаемся загрузить файл
+      if (fs.existsSync(filePath)) {
+        const originalImage = fs.readFileSync(filePath);
+        const ext = path.extname(filePath).slice(1);
+        const base64Image = `data:image/${ext};base64,${originalImage.toString('base64')}`;
+        
+        currentTheme = {
+          type: 'image',
+          image: base64Image,
+          text: '#ffffff',
+          muted: '#cccccc',
+          divider: 'rgba(255,255,255,0.3)',
+          footer: 'rgba(255,255,255,0.7)',
+          borderColor: '#ffffff'
+        };
+      } else {
+        // Если файл не найден, используем прямую ссылку
         currentTheme = {
           type: 'image',
           image: `${baseUrl}${imagePath}`,
@@ -117,59 +123,7 @@ export default async function handler(req, res) {
         };
       }
     } catch (error) {
-      console.error('Error:', error);
-      currentTheme = themes.dark;
-    }
-  } else {
-    // Проверяем, есть ли такая тема в списке
-    const themeName = theme.toLowerCase();
-    
-    if (themes[themeName]) {
-      // Если это тема с изображением
-      if (themes[themeName].type === 'image') {
-        try {
-          const baseUrl = process.env.VERCEL_URL 
-            ? `https://${process.env.VERCEL_URL}` 
-            : 'http://localhost:3000';
-          
-          const imagePath = `/${themes[themeName].file}`;
-          const filePath = path.join(process.cwd(), 'public', imagePath);
-          
-          if (fs.existsSync(filePath)) {
-            const originalImage = fs.readFileSync(filePath);
-            const base64Image = `data:image/${path.extname(filePath).slice(1)};base64,${originalImage.toString('base64')}`;
-            
-            currentTheme = {
-              type: 'image',
-              image: base64Image,
-              text: '#ffffff',
-              muted: '#cccccc',
-              divider: 'rgba(255,255,255,0.3)',
-              footer: 'rgba(255,255,255,0.7)',
-              borderColor: '#ffffff'
-            };
-          } else {
-            // Если файл не найден, используем прямую ссылку
-            currentTheme = {
-              type: 'image',
-              image: `${baseUrl}${imagePath}`,
-              text: '#ffffff',
-              muted: '#cccccc',
-              divider: 'rgba(255,255,255,0.3)',
-              footer: 'rgba(255,255,255,0.7)',
-              borderColor: '#ffffff'
-            };
-          }
-        } catch (error) {
-          console.error('Error loading image theme:', error);
-          currentTheme = themes.dark;
-        }
-      } else {
-        // Если это градиентная тема
-        currentTheme = themes[themeName];
-      }
-    } else {
-      // Если тема не найдена, используем dark по умолчанию
+      console.error('Error loading image theme:', error);
       currentTheme = themes.dark;
     }
   }
