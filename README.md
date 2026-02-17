@@ -39,6 +39,16 @@
 | dark       | basic dark theme          |
 | light      | the usual light theme     |
 | github     | a theme with a gray tint  |
+| coal      | <img src="/public/images/coal.jpg" width="300" heigth="200"> |
+| storm      | <img src="/public/images/storm.jpg" width="300" heigth="200"> |
+| matrix      | <img src="/public/images/matrix.jpg" width="300" heigth="200"> |
+| space      | <img src="/public/images/space_m.jpg" width="300" heigth="200"> |
+| ocean      | <img src="/public/images/ocean.jpg" width="300" heigth="200"> |
+| purple_land      | <img src="/public/images/purple.jpg" width="300" heigth="200"> |
+| land      | <img src="/public/images/land.jpg" width="300" heigth="200"> |
+| sunset_red      | <img src="/public/images/sunset_r.jpg" width="300" heigth="200"> |
+| sunset_yellow      | <img src="/public/images/sunset_y.jpg" width="300" heigth="200"> |
+| forest      | <img src="/public/images/trees.jpg" width="300" heigth="200"> |
 
 An example of a badge with the added name and theme is github:
 
