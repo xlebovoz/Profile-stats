@@ -39,9 +39,9 @@ export default async function handler(req, res) {
     coal: {
       type: 'image',
       image: '/images/coal.jpg',
-      text: '#6c6c6c',
+      text: '#989898',
       muted: '#5e5e5e',
-      divider: 'rgba(255, 255, 255, 0.18)',
+      divider: 'rgba(255, 255, 255, 0.34)',
       footer: 'rgba(117, 117, 117, 0.7)',
       borderColor: '#090909'
     },
@@ -121,8 +121,8 @@ export default async function handler(req, res) {
       type: 'image',
       image: '/images/purple.jpg',
       text: '#ffffffd0',
-      muted: '#f3f3f399',
-      divider: 'rgba(255, 255, 255, 0.19)',
+      muted: '#f3f3f3d2',
+      divider: 'rgba(255, 255, 255, 0.33)',
       footer: 'rgba(255, 255, 255, 0.55)',
       borderColor: '#8f00c886'
     }
