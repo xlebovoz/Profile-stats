@@ -42,7 +42,7 @@ export default async function handler(req, res) {
     // Фото-темы (просто URL)
     coal: {
       type: 'image',
-      image: `${baseUrl}/coal.jpg`,
+      image: `${baseUrl}/image/coal.jpg`,  // <-- вот так, через /image/
       text: '#ffffff',
       muted: '#cccccc',
       divider: 'rgba(255,255,255,0.3)',
@@ -51,7 +51,7 @@ export default async function handler(req, res) {
     },
     land: {
       type: 'image',
-      image: `${baseUrl}/land.jpg`,
+      image: `${baseUrl}/image/land.jpg`,
       text: '#ffffff',
       muted: '#cccccc',
       divider: 'rgba(255,255,255,0.3)',
@@ -60,7 +60,7 @@ export default async function handler(req, res) {
     },
     matrix: {
       type: 'image',
-      image: `${baseUrl}/matrix.jpg`,
+      image: `${baseUrl}/image/matrix.jpg`,
       text: '#00ff00',
       muted: '#00aa00',
       divider: 'rgba(0,255,0,0.3)',
@@ -69,7 +69,7 @@ export default async function handler(req, res) {
     },
     ocean: {
       type: 'image',
-      image: `${baseUrl}/ocean.jpg`,
+      image: `${baseUrl}/image/ocean.jpg`,
       text: '#ffffff',
       muted: '#cccccc',
       divider: 'rgba(255,255,255,0.3)',
@@ -78,7 +78,7 @@ export default async function handler(req, res) {
     },
     purple: {
       type: 'image',
-      image: `${baseUrl}/purple.jpg`,
+      image: `${baseUrl}/image/purple.jpg`,
       text: '#ffffff',
       muted: '#e0b0ff',
       divider: 'rgba(255,255,255,0.3)',
@@ -87,7 +87,7 @@ export default async function handler(req, res) {
     },
     space: {
       type: 'image',
-      image: `${baseUrl}/space_m.jpg`,
+      image: `${baseUrl}/image/space_m.jpg`,
       text: '#ffffff',
       muted: '#aaaaff',
       divider: 'rgba(255,255,255,0.3)',
@@ -96,7 +96,7 @@ export default async function handler(req, res) {
     },
     storm: {
       type: 'image',
-      image: `${baseUrl}/storm.jpg`,
+      image: `${baseUrl}/image/storm.jpg`,
       text: '#ffffff',
       muted: '#bbccdd',
       divider: 'rgba(255,255,255,0.3)',
@@ -105,7 +105,7 @@ export default async function handler(req, res) {
     },
     sunset_r: {
       type: 'image',
-      image: `${baseUrl}/sunset_r.jpg`,
+      image: `${baseUrl}/image/sunset_r.jpg`,
       text: '#ffffff',
       muted: '#ffbbbb',
       divider: 'rgba(255,255,255,0.3)',
@@ -114,7 +114,7 @@ export default async function handler(req, res) {
     },
     sunset_y: {
       type: 'image',
-      image: `${baseUrl}/sunset_y.jpg`,
+      image: `${baseUrl}/image/sunset_y.jpg`,
       text: '#000000',
       muted: '#664d26',
       divider: 'rgba(0,0,0,0.2)',
@@ -123,7 +123,7 @@ export default async function handler(req, res) {
     },
     trees: {
       type: 'image',
-      image: `${baseUrl}/trees.jpg`,
+      image: `${baseUrl}/image/trees.jpg`,
       text: '#ffffff',
       muted: '#cccccc',
       divider: 'rgba(255,255,255,0.3)',
