@@ -240,7 +240,7 @@ export default async function handler(req, res) {
     
     // Проверяем параметр show_username
     const showUsername = show_username.toLowerCase() === 'true';
-    const usernameYOffset = showUsername ? 25 : 0;
+    const usernameYOffset = showUsername ? 25 : 10;
     const totalHeight = showUsername ? 155 : 145;
     
     // Генерируем фон в зависимости от типа темы
@@ -313,13 +313,13 @@ export default async function handler(req, res) {
       </g>
       
       <!-- Сделано хлебовозом слева снизу -->
-      <text x="20" y="${120 + usernameYOffset}" font-family="Arial, sans-serif" font-size="10" 
+      <text x="20" y="${120 + (showUsername ? 25 : 15)}" font-family="Arial, sans-serif" font-size="10" 
             fill="${currentTheme.footer}" text-anchor="start" font-weight="400">
         Powered by Xlebovoz
       </text>
       
       <!-- Дата справа снизу -->
-      <text x="430" y="${120 + usernameYOffset}" font-family="Arial, sans-serif" font-size="10" 
+      <text x="430" y="${120 + (showUsername ? 25 : 15)}" font-family="Arial, sans-serif" font-size="10" 
             fill="${currentTheme.footer}" text-anchor="end" font-weight="400">
         ${dateStr}
       </text>
