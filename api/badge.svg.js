@@ -326,7 +326,7 @@ export default async function handler(req, res) {
     </svg>
     `;
     
-    // кэширование на 6 часов
+    // кэширование на 1 часов
     res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=3600');
     res.send(svg);
     
