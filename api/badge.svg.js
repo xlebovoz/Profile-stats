@@ -15,6 +15,7 @@ export default async function handler(req, res) {
   // Получаем тему
   let currentTheme = themes[theme] || themes.dark;
   let textColor = currentTheme.text;
+  let mutedColor = currentTheme.muted;
   let customText = req.query.text;
   
   // Если тема с картинкой, загружаем и конвертируем в base64
