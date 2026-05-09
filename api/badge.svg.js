@@ -55,14 +55,14 @@ export default async function handler(req, res) {
     const customColor = colorMap[customText.toLowerCase()];
     if (customColor) {
       textColor = customColor;
-      mutedColor = customColor;
+      // mutedColor = customColor;
     } else {
       // Поддержка HEX без #
       const hexPattern = /^[0-9A-F]{6}$|^[0-9A-F]{3}$/i;
       let hex = customText.startsWith('#') ? customText.slice(1) : customText;
       if (hexPattern.test(hex)) {
         textColor = `#${hex}`;
-        mutedColor = `#${hex}`;
+        // mutedColor = `#${hex}`;
       }
     }
   }
