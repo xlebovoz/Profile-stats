@@ -40,8 +40,23 @@ export default async function handler(req, res) {
 
 // text color
 if (customText) {
-  console.log('=== COLOR DEBUG ===');
-  console.log('customText:', customText);
+  // Функция конвертации HEX в RGBA
+  function hexToRgba(hex, opacity = 0.6) {
+    // Убираем # если есть
+    let h = hex.replace('#', '');
+    
+    // Конвертируем 3-символьный HEX в 6-символьный
+    if (h.length === 3) {
+      h = h.split('').map(c => c + c).join('');
+    }
+    
+    // Парсим RGB компоненты
+    const r = parseInt(h.substring(0, 2), 16);
+    const g = parseInt(h.substring(2, 4), 16);
+    const b = parseInt(h.substring(4, 6), 16);
+    
+    return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+  }
   
   const colorMap = {
     'red': '#f85149',
@@ -58,10 +73,9 @@ if (customText) {
   const customColor = colorMap[customText.toLowerCase()];
   if (customColor) {
     textColor = customColor;
-    mutedColor = customColor + '99';
-    console.log('Named color applied:', customColor);
-    console.log('mutedColor:', mutedColor);
+    mutedColor = hexToRgba(customColor, 0.6); // 60% непрозрачности
   } else {
+    // Поддержка HEX без #
     const hexPattern = /^[0-9A-F]{6}$|^[0-9A-F]{3}$/i;
     let hex = customText.startsWith('#') ? customText.slice(1) : customText;
     if (hexPattern.test(hex)) {
@@ -70,18 +84,10 @@ if (customText) {
         fullHex = hex.split('').map(c => c + c).join('');
       }
       textColor = `#${fullHex}`;
-      mutedColor = `#${fullHex}99`;
-      console.log('Hex color applied:', textColor);
-      console.log('mutedColor:', mutedColor);
-    } else {
-      console.log('Not a valid color, ignoring');
+      mutedColor = hexToRgba(`#${fullHex}`, 0.6);
     }
   }
-  console.log('Final textColor:', textColor);
-  console.log('Final mutedColor:', mutedColor);
-  console.log('=== END DEBUG ===');
 }
-
   
   // Определяем цвет обводки
   let borderColor = currentTheme.borderColor || currentTheme.text;
