@@ -62,6 +62,7 @@ export default async function handler(req, res) {
       let hex = customText.startsWith('#') ? customText.slice(1) : customText;
       if (hexPattern.test(hex)) {
         textColor = `#${hex}`;
+        mutedColor = `#${hex}`;
       }
     }
   }
