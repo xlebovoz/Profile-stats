@@ -55,7 +55,7 @@ export default async function handler(req, res) {
     const customColor = colorMap[customText.toLowerCase()];
     if (customColor) {
       textColor = customColor;
-      mutedColor = customColor + '80';
+      mutedColor = customColor + '40';
     } else {
       // Поддержка HEX без #
       const hexPattern = /^[0-9A-F]{6}$|^[0-9A-F]{3}$/i;
