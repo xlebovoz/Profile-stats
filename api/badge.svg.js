@@ -12,21 +12,6 @@ export default async function handler(req, res) {
   
   // Получаем тему
   let currentTheme = themes[theme] || themes.dark;
-  let textColor = currentTheme.text;
-  let mutedColor = currentTheme.muted;
-  let customText = req.query.text;
-  
-  // Функция конвертации HEX в RGBA
-  function hexToRgba(hex, opacity = 0.6) {
-    let h = hex.replace('#', '');
-    if (h.length === 3) {
-      h = h.split('').map(c => c + c).join('');
-    }
-    const r = parseInt(h.substring(0, 2), 16);
-    const g = parseInt(h.substring(2, 4), 16);
-    const b = parseInt(h.substring(4, 6), 16);
-    return `rgba(${r}, ${g}, ${b}, ${opacity})`;
-  }
   
   // Если тема с картинкой, загружаем и конвертируем в base64
   if (currentTheme.type === 'image') {
@@ -34,51 +19,17 @@ export default async function handler(req, res) {
       const filePath = path.join(process.cwd(), 'public', currentTheme.image);
       if (fs.existsSync(filePath)) {
         const originalImage = fs.readFileSync(filePath);
-        const ext = path.extname(filePath).slice(1).toLowerCase();
-        let mimeType = 'image/jpeg';
-        if (ext === 'png') mimeType = 'image/png';
-        if (ext === 'gif') mimeType = 'image/gif';
-        if (ext === 'webp') mimeType = 'image/webp';
-        
-        const base64Image = `data:${mimeType};base64,${originalImage.toString('base64')}`;
+        const ext = path.extname(filePath).slice(1);
+        const base64Image = `data:image/${ext};base64,${originalImage.toString('base64')}`;
         currentTheme.image = base64Image;
       } else {
+        // Если файл не найден, используем dark тему
         console.error(`Image not found: ${filePath}`);
         currentTheme = themes.dark;
       }
     } catch (error) {
       console.error('Error loading image:', error);
       currentTheme = themes.dark;
-    }
-  }
-
-  // text color
-  if (customText) {
-    const colorMap = {
-      'red': '#f85149',
-      'blue': '#58a6ff',
-      'green': '#2fbb4f',
-      'yellow': '#f1e05a',
-      'purple': '#a371f7',
-      'pink': '#f778ba',
-      'orange': '#ff7b72',
-      'white': '#ffffff',
-      'black': '#000000'
-    };
-    
-    const customColor = colorMap[customText.toLowerCase()];
-    if (customColor) {
-      textColor = customColor;
-    } else {
-      const hexPattern = /^[0-9A-F]{6}$|^[0-9A-F]{3}$/i;
-      let hex = customText.startsWith('#') ? customText.slice(1) : customText;
-      if (hexPattern.test(hex)) {
-        let fullHex = hex;
-        if (hex.length === 3) {
-          fullHex = hex.split('').map(c => c + c).join('');
-        }
-        textColor = `#${fullHex}`;
-      }
     }
   }
   
@@ -197,11 +148,6 @@ export default async function handler(req, res) {
       <rect x="2" y="2" width="446" height="${totalHeight - 4}" fill="url(#bg-image)" rx="20" 
             stroke="${borderColor}" stroke-width="${borderWidth * 2}" stroke-linejoin="round"/>
       <rect x="2" y="2" width="446" height="${totalHeight - 4}" fill="rgba(0,0,0,0.4)" rx="20" stroke="none"/>`;
-    } else {
-      // fallback для простых цветных тем
-      background = `
-      <rect x="2" y="2" width="446" height="${totalHeight - 4}" fill="${currentTheme.bg || '#0d1117'}" rx="20" 
-            stroke="${borderColor}" stroke-width="${borderWidth * 2}" stroke-linejoin="round"/>`;
     }
     
     const svg = `
@@ -211,58 +157,58 @@ export default async function handler(req, res) {
       ${showUsername ? `
       <!-- Имя пользователя сверху -->
       <text x="225" y="30" font-family="Arial, sans-serif" font-size="16" 
-            fill="${textColor}" text-anchor="middle" font-weight="600">
-        ${escapeXml(user.name || username)}
+            fill="${currentTheme.text}" text-anchor="middle" font-weight="600">
+        ${user.name || username}
       </text>
       ` : ''}
       
       <!-- Левая часть: Репозитории -->
       <g transform="translate(75, ${60 + usernameYOffset})">
         <text x="0" y="-25" font-family="Arial, sans-serif" font-size="14" 
-              fill="${mutedColor}" text-anchor="middle" font-weight="500">📦 Repos</text>
+              fill="${currentTheme.muted}" text-anchor="middle" font-weight="500">📦 Repos</text>
         <text x="0" y="25" font-family="Arial, sans-serif" font-size="42" 
-              fill="${textColor}" text-anchor="middle" font-weight="bold">${repos}</text>
+              fill="${currentTheme.text}" text-anchor="middle" font-weight="bold">${repos}</text>
       </g>
       
       <!-- Разделитель 1 -->
       <line x1="150" y1="${40 + usernameYOffset}" x2="150" y2="${105 + usernameYOffset}" 
-            stroke="${currentTheme.divider || '#30363d'}" stroke-width="2"/>
+            stroke="${currentTheme.divider}" stroke-width="2"/>
       
       <!-- Центральная часть: Звёзды -->
       <g transform="translate(225, ${60 + usernameYOffset})">
         <text x="0" y="-25" font-family="Arial, sans-serif" font-size="14" 
-              fill="${mutedColor}" text-anchor="middle" font-weight="500">⭐ Stars</text>
+              fill="${currentTheme.muted}" text-anchor="middle" font-weight="500">⭐ Stars</text>
         <text x="0" y="25" font-family="Arial, sans-serif" font-size="42" 
-              fill="${textColor}" text-anchor="middle" font-weight="bold">${stars}</text>
+              fill="${currentTheme.text}" text-anchor="middle" font-weight="bold">${stars}</text>
       </g>
       
       <!-- Разделитель 2 -->
       <line x1="300" y1="${40 + usernameYOffset}" x2="300" y2="${105 + usernameYOffset}" 
-            stroke="${currentTheme.divider || '#30363d'}" stroke-width="2"/>
+            stroke="${currentTheme.divider}" stroke-width="2"/>
       
       <!-- Правая часть: Подписчики -->
       <g transform="translate(375, ${60 + usernameYOffset})">
         <text x="0" y="-25" font-family="Arial, sans-serif" font-size="14" 
-              fill="${mutedColor}" text-anchor="middle" font-weight="500">👥 Followers</text>
+              fill="${currentTheme.muted}" text-anchor="middle" font-weight="500">👥 Followers</text>
         <text x="0" y="25" font-family="Arial, sans-serif" font-size="42" 
-              fill="${textColor}" text-anchor="middle" font-weight="bold">${followers}</text>
+              fill="${currentTheme.text}" text-anchor="middle" font-weight="bold">${followers}</text>
       </g>
       
       <!-- Сделано хлебовозом слева снизу -->
       <text x="20" y="${120 + (showUsername ? 25 : 15)}" font-family="Arial, sans-serif" font-size="10" 
-            fill="${currentTheme.footer || '#8b949e'}" text-anchor="start" font-weight="400">
+            fill="${currentTheme.footer}" text-anchor="start" font-weight="400">
         Powered by Xlebovoz
       </text>
       
       <!-- Дата справа снизу -->
       <text x="430" y="${120 + (showUsername ? 25 : 15)}" font-family="Arial, sans-serif" font-size="10" 
-            fill="${currentTheme.footer || '#8b949e'}" text-anchor="end" font-weight="400">
+            fill="${currentTheme.footer}" text-anchor="end" font-weight="400">
         ${dateStr}
       </text>
     </svg>
     `;
     
-    // кэширование на 1 час
+    // кэширование на 1 часов
     res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=3600');
     res.send(svg);
     
@@ -281,7 +227,7 @@ export default async function handler(req, res) {
       
       <text x="225" y="70" font-family="Arial, sans-serif" font-size="16" 
             fill="white" text-anchor="middle" font-weight="bold">
-        ❌ ${escapeXml(error.message)}
+        ❌ ${error.message}
       </text>
       
       <text x="20" y="130" font-family="Arial, sans-serif" font-size="10" 
@@ -297,15 +243,4 @@ export default async function handler(req, res) {
     `;
     res.send(errorSvg);
   }
-}
-
-// Функция для экранирования XML спецсимволов
-function escapeXml(str) {
-  if (!str) return '';
-  return str.replace(/[<>&]/g, function(match) {
-    if (match === '<') return '&lt;';
-    if (match === '>') return '&gt;';
-    if (match === '&') return '&amp;';
-    return match;
-  });
 }
