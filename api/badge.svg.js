@@ -54,6 +54,7 @@ export default async function handler(req, res) {
     const customColor = colorMap[customText.toLowerCase()];
     if (customColor) {
       textColor = customColor;
+      mutedColor = customColor;
     } else {
       // Поддержка HEX без #
       const hexPattern = /^[0-9A-F]{6}$|^[0-9A-F]{3}$/i;
@@ -196,7 +197,7 @@ export default async function handler(req, res) {
       <!-- Левая часть: Репозитории -->
       <g transform="translate(75, ${60 + usernameYOffset})">
         <text x="0" y="-25" font-family="Arial, sans-serif" font-size="14" 
-              fill="${currentTheme.muted}" text-anchor="middle" font-weight="500">📦 Repos</text>
+              fill="${mutedColor}" text-anchor="middle" font-weight="500">📦 Repos</text>
         <text x="0" y="25" font-family="Arial, sans-serif" font-size="42" 
               fill="${textColor}" text-anchor="middle" font-weight="bold">${repos}</text>
       </g>
@@ -208,7 +209,7 @@ export default async function handler(req, res) {
       <!-- Центральная часть: Звёзды -->
       <g transform="translate(225, ${60 + usernameYOffset})">
         <text x="0" y="-25" font-family="Arial, sans-serif" font-size="14" 
-              fill="${currentTheme.muted}" text-anchor="middle" font-weight="500">⭐ Stars</text>
+              fill="${mutedColor}" text-anchor="middle" font-weight="500">⭐ Stars</text>
         <text x="0" y="25" font-family="Arial, sans-serif" font-size="42" 
               fill="${textColor}" text-anchor="middle" font-weight="bold">${stars}</text>
       </g>
@@ -220,7 +221,7 @@ export default async function handler(req, res) {
       <!-- Правая часть: Подписчики -->
       <g transform="translate(375, ${60 + usernameYOffset})">
         <text x="0" y="-25" font-family="Arial, sans-serif" font-size="14" 
-              fill="${currentTheme.muted}" text-anchor="middle" font-weight="500">👥 Followers</text>
+              fill="${mutedColor}" text-anchor="middle" font-weight="500">👥 Followers</text>
         <text x="0" y="25" font-family="Arial, sans-serif" font-size="42" 
               fill="${textColor}" text-anchor="middle" font-weight="bold">${followers}</text>
       </g>
