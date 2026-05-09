@@ -52,7 +52,7 @@ export default async function handler(req, res) {
     }
   }
 
-  // text color - ИСПРАВЛЕННАЯ ВЕРСИЯ
+  // text color
   if (customText) {
     const colorMap = {
       'red': '#f85149',
@@ -69,7 +69,6 @@ export default async function handler(req, res) {
     const customColor = colorMap[customText.toLowerCase()];
     if (customColor) {
       textColor = customColor;
-      mutedColor = hexToRgba(customColor, 0.6);
     } else {
       const hexPattern = /^[0-9A-F]{6}$|^[0-9A-F]{3}$/i;
       let hex = customText.startsWith('#') ? customText.slice(1) : customText;
@@ -79,7 +78,6 @@ export default async function handler(req, res) {
           fullHex = hex.split('').map(c => c + c).join('');
         }
         textColor = `#${fullHex}`;
-        mutedColor = hexToRgba(`#${fullHex}`, 0.6);
       }
     }
   }
