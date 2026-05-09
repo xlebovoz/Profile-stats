@@ -8,12 +8,14 @@ const __dirname = path.dirname(__filename);
 
 export default async function handler(req, res) {
   res.setHeader('Content-Type', 'image/svg+xml');
-  const { username, show_username = 'false', theme = 'dark', border } = req.query;
+  const { username, show_username = 'false', theme = 'dark', border, text } = req.query;
   
   
 
   // Получаем тему
   let currentTheme = themes[theme] || themes.dark;
+  let textColor = currentTheme.text;
+  let customText = req.query.text;
   
   // Если тема с картинкой, загружаем и конвертируем в base64
   if (currentTheme.type === 'image') {
@@ -32,6 +34,33 @@ export default async function handler(req, res) {
     } catch (error) {
       console.error('Error loading image:', error);
       currentTheme = themes.dark;
+    }
+  }
+
+  // text color
+  if (customText) {
+    const colorMap = {
+      'red': '#f85149',
+      'blue': '#58a6ff',
+      'green': '#2fbb4f',
+      'yellow': '#f1e05a',
+      'purple': '#a371f7',
+      'pink': '#f778ba',
+      'orange': '#ff7b72',
+      'white': '#ffffff',
+      'black': '#000000'
+    };
+    
+    const customColor = colorMap[customText.toLowerCase()];
+    if (customColor) {
+      textColor = customColor;
+    } else {
+      // Поддержка HEX без #
+      const hexPattern = /^[0-9A-F]{6}$|^[0-9A-F]{3}$/i;
+      let hex = customText.startsWith('#') ? customText.slice(1) : customText;
+      if (hexPattern.test(hex)) {
+        textColor = `#${hex}`;
+      }
     }
   }
   
@@ -159,7 +188,7 @@ export default async function handler(req, res) {
       ${showUsername ? `
       <!-- Имя пользователя сверху -->
       <text x="225" y="30" font-family="Arial, sans-serif" font-size="16" 
-            fill="${currentTheme.text}" text-anchor="middle" font-weight="600">
+            fill="${textColor}" text-anchor="middle" font-weight="600">
         ${user.name || username}
       </text>
       ` : ''}
@@ -169,7 +198,7 @@ export default async function handler(req, res) {
         <text x="0" y="-25" font-family="Arial, sans-serif" font-size="14" 
               fill="${currentTheme.muted}" text-anchor="middle" font-weight="500">📦 Repos</text>
         <text x="0" y="25" font-family="Arial, sans-serif" font-size="42" 
-              fill="${currentTheme.text}" text-anchor="middle" font-weight="bold">${repos}</text>
+              fill="${textColor}" text-anchor="middle" font-weight="bold">${repos}</text>
       </g>
       
       <!-- Разделитель 1 -->
@@ -181,7 +210,7 @@ export default async function handler(req, res) {
         <text x="0" y="-25" font-family="Arial, sans-serif" font-size="14" 
               fill="${currentTheme.muted}" text-anchor="middle" font-weight="500">⭐ Stars</text>
         <text x="0" y="25" font-family="Arial, sans-serif" font-size="42" 
-              fill="${currentTheme.text}" text-anchor="middle" font-weight="bold">${stars}</text>
+              fill="${textColor}" text-anchor="middle" font-weight="bold">${stars}</text>
       </g>
       
       <!-- Разделитель 2 -->
@@ -193,7 +222,7 @@ export default async function handler(req, res) {
         <text x="0" y="-25" font-family="Arial, sans-serif" font-size="14" 
               fill="${currentTheme.muted}" text-anchor="middle" font-weight="500">👥 Followers</text>
         <text x="0" y="25" font-family="Arial, sans-serif" font-size="42" 
-              fill="${currentTheme.text}" text-anchor="middle" font-weight="bold">${followers}</text>
+              fill="${textColor}" text-anchor="middle" font-weight="bold">${followers}</text>
       </g>
       
       <!-- Сделано хлебовозом слева снизу -->
