@@ -38,34 +38,50 @@ export default async function handler(req, res) {
     }
   }
 
-  // text color
-  if (customText) {
-    const colorMap = {
-      'red': '#f85149',
-      'blue': '#58a6ff',
-      'green': '#2fbb4f',
-      'yellow': '#f1e05a',
-      'purple': '#a371f7',
-      'pink': '#f778ba',
-      'orange': '#ff7b72',
-      'white': '#ffffff',
-      'black': '#000000'
-    };
-    
-    const customColor = colorMap[customText.toLowerCase()];
-    if (customColor) {
-      textColor = customColor;
-      mutedColor = customColor + '99';
-    } else {
-      // Поддержка HEX без #
-      const hexPattern = /^[0-9A-F]{6}$|^[0-9A-F]{3}$/i;
-      let hex = customText.startsWith('#') ? customText.slice(1) : customText;
-      if (hexPattern.test(hex)) {
-        textColor = `#${hex}`;
-        mutedColor = `#${fullHex}99`;
+// text color
+if (customText) {
+  console.log('=== COLOR DEBUG ===');
+  console.log('customText:', customText);
+  
+  const colorMap = {
+    'red': '#f85149',
+    'blue': '#58a6ff',
+    'green': '#2fbb4f',
+    'yellow': '#f1e05a',
+    'purple': '#a371f7',
+    'pink': '#f778ba',
+    'orange': '#ff7b72',
+    'white': '#ffffff',
+    'black': '#000000'
+  };
+  
+  const customColor = colorMap[customText.toLowerCase()];
+  if (customColor) {
+    textColor = customColor;
+    mutedColor = customColor + '99';
+    console.log('Named color applied:', customColor);
+    console.log('mutedColor:', mutedColor);
+  } else {
+    const hexPattern = /^[0-9A-F]{6}$|^[0-9A-F]{3}$/i;
+    let hex = customText.startsWith('#') ? customText.slice(1) : customText;
+    if (hexPattern.test(hex)) {
+      let fullHex = hex;
+      if (hex.length === 3) {
+        fullHex = hex.split('').map(c => c + c).join('');
       }
+      textColor = `#${fullHex}`;
+      mutedColor = `#${fullHex}99`;
+      console.log('Hex color applied:', textColor);
+      console.log('mutedColor:', mutedColor);
+    } else {
+      console.log('Not a valid color, ignoring');
     }
   }
+  console.log('Final textColor:', textColor);
+  console.log('Final mutedColor:', mutedColor);
+  console.log('=== END DEBUG ===');
+}
+
   
   // Определяем цвет обводки
   let borderColor = currentTheme.borderColor || currentTheme.text;
